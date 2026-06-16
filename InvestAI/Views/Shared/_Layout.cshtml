@@ -1,0 +1,470 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - InvestAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-bg: #0f1724;
+            --sidebar-width: 220px;
+            --accent: #3b6ef8;
+            --accent-light: #5b84f8;
+            --bg: #f4f6fb;
+            --card-bg: #ffffff;
+            --text: #1a2236;
+            --text-muted: #7a8499;
+            --border: #e8ecf4;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 100;
+            padding: 24px 0;
+        }
+
+        .sidebar-logo {
+            padding: 0 20px 28px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+            .sidebar-logo a {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                text-decoration: none;
+                color: white;
+                font-size: 18px;
+                font-weight: 700;
+            }
+
+            .sidebar-logo .logo-icon {
+                width: 36px;
+                height: 36px;
+                background: var(--accent);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+            }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-section-title {
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 8px 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+            .nav-item:hover {
+                background: rgba(255,255,255,0.08);
+                color: white;
+            }
+
+            .nav-item.active {
+                background: var(--accent);
+                color: white;
+            }
+
+            .nav-item i {
+                width: 18px;
+                text-align: center;
+                font-size: 14px;
+            }
+
+        .sidebar-bottom {
+            padding: 16px 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        /* MAIN */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* TOP BAR */
+        .topbar {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-search {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 16px;
+            width: 320px;
+        }
+
+            .topbar-search input {
+                border: none;
+                background: transparent;
+                outline: none;
+                font-family: inherit;
+                font-size: 13.5px;
+                color: var(--text);
+                width: 100%;
+            }
+
+                .topbar-search input::placeholder {
+                    color: var(--text-muted);
+                }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .topbar-icon:hover {
+                background: var(--border);
+                color: var(--text);
+            }
+
+        /* USER DROPDOWN */
+        .user-badge {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 12px;
+        }
+
+            .user-badge:hover {
+                background: var(--bg);
+            }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .user-info {
+            line-height: 1.3;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 220px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(15,23,42,0.14);
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+            .user-dropdown.open {
+                display: block;
+            }
+
+        .dropdown-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .dropdown-header .d-name {
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .dropdown-header .d-email {
+                font-size: 11px;
+                color: var(--text-muted);
+                margin-top: 2px;
+            }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 16px;
+            font-size: 13px;
+            color: var(--text);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.15s;
+            width: 100%;
+        }
+
+            .dropdown-item:hover {
+                background: var(--bg);
+            }
+
+            .dropdown-item i {
+                width: 16px;
+                color: var(--text-muted);
+                font-size: 13px;
+            }
+
+        .dropdown-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 4px 0;
+        }
+
+        .dropdown-item.logout {
+            color: var(--danger);
+        }
+
+            .dropdown-item.logout i {
+                color: var(--danger);
+            }
+
+        /* CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 28px;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <a asp-controller="Home" asp-action="Index">
+                <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+                InvestAI
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-section-title">Genel</span>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
+               asp-controller="Home" asp-action="Index">
+                <i class="fas fa-house"></i> Ana Sayfa
+            </a>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")"
+               asp-controller="Dashboard" asp-action="Index">
+                <i class="fas fa-magnifying-glass"></i> İl / İlçe Ara
+            </a>
+            <span class="nav-section-title">Analiz</span>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "YatirimSkorlari" ? "active" : "")"
+               asp-controller="YatirimSkorlari" asp-action="Index">
+                <i class="fas fa-ranking-star"></i> Yatırım Skorları
+            </a>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Kategoriler" ? "active" : "")"
+               asp-controller="Kategoriler" asp-action="Index">
+                <i class="fas fa-folder-open"></i> Kategoriler
+            </a>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "HaberAnalizi" ? "active" : "")"
+               asp-controller="HaberAnalizi" asp-action="Index">
+                <i class="fas fa-newspaper"></i> Haber Analizi
+            </a>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Karsilastirma" ? "active" : "")"
+               asp-controller="Karsilastirma" asp-action="Index">
+                <i class="fas fa-code-compare"></i> Karşılaştırma
+            </a>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "YatirimAI" ? "active" : "")"
+               asp-controller="YatirimAI" asp-action="Index">
+                <i class="fas fa-robot"></i> AI Asistan
+            </a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")"
+               asp-controller="Settings" asp-action="Index">
+                <i class="fas fa-gear"></i> Ayarlar
+            </a>
+            <form asp-action="Logout" asp-controller="Account" method="post" style="margin:0">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="nav-item" style="background:none; border:none; width:100%; text-align:left; cursor:pointer;">
+                    <i class="fas fa-arrow-right-from-bracket"></i> Çıkış Yap
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-wrapper">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-search">
+                <i class="fas fa-magnifying-glass" style="color:var(--text-muted);font-size:13px;"></i>
+                <input type="text" placeholder="İl veya ilçe ara..." id="globalSearch" />
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-icon">
+                    <i class="fas fa-bell" style="font-size:14px;"></i>
+                </div>
+                <div class="user-badge" id="userBadge">
+                    <div class="user-avatar">@(User.FindFirst("FullName")?.Value?.Substring(0, 1).ToUpper() ?? "K")</div>
+                    <div class="user-info">
+                        <div class="user-name">@(User.FindFirst("FullName")?.Value ?? "Kullanıcı") <i class="fas fa-chevron-down" style="font-size:9px;margin-left:2px;"></i></div>
+                        <div class="user-role">Investor</div>
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+
+                        <div class="dropdown-header">
+                            <div class="d-name">@(User.FindFirst("FullName")?.Value ?? "Kullanıcı")</div>
+                            <div class="d-email">@User.Identity?.Name</div>
+                        </div>
+                        <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
+                            <i class="fas fa-user"></i> Profilim
+                        </a>
+                        <a class="dropdown-item" asp-controller="Bildirimler" asp-action="Index">
+                            <i class="fas fa-bell"></i> Bildirimlerim
+                        </a>
+                        <a class="dropdown-item" asp-controller="Settings" asp-action="Index">
+                            <i class="fas fa-gear"></i> Tercihlerim
+                        </a>
+                        <hr class="dropdown-divider">
+                        <form asp-action="Logout" asp-controller="Account" method="post" style="margin:0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="dropdown-item logout" style="background:none;border:none;">
+                                <i class="fas fa-arrow-right-from-bracket"></i> Çıkış Yap
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="main-content">
+            @RenderBody()
+        </main>
+
+        <footer>
+            © 2024 InvestAI. Tüm hakları saklıdır.
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        const userBadge = document.getElementById('userBadge');
+        const userDropdown = document.getElementById('userDropdown');
+        userBadge.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', () => userDropdown.classList.remove('open'));
+    </script>
+
+</body>
+</html>

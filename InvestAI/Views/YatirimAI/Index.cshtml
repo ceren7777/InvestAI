@@ -1,0 +1,245 @@
+﻿@{
+    ViewData["Title"] = "AI Asistan";
+}
+
+<div class="ai-page">
+
+    <header class="ai-header">
+        <h1>AI Yatırım Asistanı</h1>
+        <p>Yapay zeka asistanınız; şehir, sektör ve yatırım kararlarınızda destek sağlar.</p>
+    </header>
+
+    <section class="chat-card">
+
+        <div class="message-row bot">
+            <div class="avatar">🤖</div>
+            <div class="message bot-message">
+                Merhaba! Ben InvestAI asistanınız. Yatırım analizleri, şehir karşılaştırmaları, sektör bilgileri ve yatırım önerileri konusunda size yardımcı olabilirim.
+            </div>
+        </div>
+
+        <div class="suggestions">
+            <button>En iyi yatırım şehirleri hangileri?</button>
+            <button>Kocaeli'de hangi sektörler öne çıkıyor?</button>
+            <button>Ulaşım altyapısı nasıl?</button>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" placeholder="Sorunuzu yazın..." />
+            <button>➤</button>
+        </div>
+
+    </section>
+
+</div>
+
+@section Styles {
+    <style>
+        .ai-page {
+            padding: 18px 28px;
+        }
+
+        .ai-header {
+            margin-bottom: 22px;
+        }
+
+            .ai-header h1 {
+                margin: 0;
+                font-size: 22px;
+                font-weight: 800;
+                color: #101828;
+            }
+
+            .ai-header p {
+                margin-top: 5px;
+                font-size: 13px;
+                color: #98a2b3;
+            }
+
+        .chat-card {
+            background: white;
+            border: 1px solid #edf1f7;
+            border-radius: 22px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.06);
+            padding: 28px;
+            min-height: 560px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+            .message-row.user {
+                justify-content: flex-end;
+            }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #eef4ff;
+            color: #3157f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message {
+            max-width: 560px;
+            padding: 15px 18px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .bot-message {
+            background: #f1f5fb;
+            color: #344054;
+        }
+
+        .user-message {
+            background: #3157f6;
+            color: white;
+            border-radius: 16px 16px 4px 16px;
+        }
+
+        .suggestions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: auto;
+            margin-bottom: 18px;
+        }
+
+            .suggestions button {
+                background: white;
+                border: 1px solid #dbe3ef;
+                border-radius: 12px;
+                padding: 11px 16px;
+                color: #344054;
+                font-weight: 600;
+                font-size: 13px;
+                cursor: pointer;
+            }
+
+                .suggestions button:hover {
+                    border-color: #3157f6;
+                    color: #3157f6;
+                    background: #eef4ff;
+                }
+
+        .chat-input {
+            display: flex;
+            gap: 12px;
+            border-top: 1px solid #edf1f7;
+            padding-top: 18px;
+        }
+
+            .chat-input input {
+                flex: 1;
+                height: 48px;
+                border: 1px solid #dbe3ef;
+                border-radius: 14px;
+                padding: 0 16px;
+                outline: none;
+                font-size: 14px;
+            }
+
+                .chat-input input:focus {
+                    border-color: #3157f6;
+                }
+
+            .chat-input button {
+                width: 52px;
+                height: 48px;
+                border: none;
+                border-radius: 14px;
+                background: #3157f6;
+                color: white;
+                font-size: 20px;
+                cursor: pointer;
+            }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        const chatCard = document.querySelector('.chat-card');
+        const input = document.querySelector('.chat-input input');
+        const sendBtn = document.querySelector('.chat-input button');
+
+        function addMessage(text, isUser) {
+            const row = document.createElement('div');
+            row.className = 'message-row ' + (isUser ? 'user' : 'bot');
+            row.innerHTML = isUser
+                ? `<div class="message user-message">${text}</div>`
+                : `<div class="avatar">🤖</div><div class="message bot-message">${text}</div>`;
+            chatCard.insertBefore(row, document.querySelector('.suggestions'));
+            row.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function addLoading() {
+            const row = document.createElement('div');
+            row.className = 'message-row bot loading-row';
+            row.innerHTML = `<div class="avatar">🤖</div><div class="message bot-message">⏳ Analiz yapılıyor...</div>`;
+            chatCard.insertBefore(row, document.querySelector('.suggestions'));
+            return row;
+        }
+
+            async function sendMessage(soru) {
+            if (!soru.trim()) return;
+            if (sendBtn.disabled) return;
+            input.value = '';
+            sendBtn.disabled = true;
+            sendBtn.style.opacity = '0.5';
+
+            const ilMatch = soru.match(/^([A-Za-zÇçĞğİıÖöŞşÜü]+)/);
+            let il = ilMatch ? ilMatch[1] : '';
+            il = il.replace(/(da|de|ta|te|nin|nın|nun|nün|ye|ya|a|e)$/i, '');
+
+            addMessage(soru, true);
+            const loader = addLoading();
+
+            if (!il || il.length < 3) {
+                loader.remove();
+                addMessage('Lütfen sorunuza bir il adı ekleyin. Örnek: "Konya\'da yatırım mantıklı mı?"', false);
+                sendBtn.disabled = false;
+                sendBtn.style.opacity = '1';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/YatirimAI/analiz', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ il, soru })
+                });
+                const data = await res.json();
+                loader.remove();
+                addMessage(data.yorum || 'Cevap alınamadı.', false);
+                sendBtn.disabled = false;
+                sendBtn.style.opacity = '1';
+            } catch (e) {
+                loader.remove();
+                addMessage('Bağlantı hatası. Servis çalışıyor mu?', false);
+                sendBtn.disabled = false;
+                sendBtn.style.opacity = '1';
+            }
+        }
+        
+
+        sendBtn.addEventListener('click', () => sendMessage(input.value));
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(input.value); });
+
+        document.querySelectorAll('.suggestions button').forEach(btn => {
+            btn.addEventListener('click', () => sendMessage(btn.textContent));
+        });
+    </script>
+}

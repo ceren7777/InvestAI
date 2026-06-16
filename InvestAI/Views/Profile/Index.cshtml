@@ -1,0 +1,601 @@
+﻿@model InvestAI.Models.ApplicationUser
+@{
+    ViewData["Title"] = "Profilim";
+    var initial = string.IsNullOrEmpty(Model.FullName) ? "K" : Model.FullName.Substring(0, 1).ToUpper();
+    var kayitTarihi = Model.CreatedAt.Year > 1 ? Model.CreatedAt.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("tr-TR")) : "-";
+    var sonGiris = Model.LastLoginAt.HasValue ? Model.LastLoginAt.Value.ToString("dd MMMM yyyy • HH:mm", new System.Globalization.CultureInfo("tr-TR")) : "-";
+}
+
+@section Styles {
+    <style>
+        .profile-header {
+            margin-bottom: 28px;
+        }
+
+        .profile-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .profile-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .breadcrumb {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+            .breadcrumb span {
+                color: var(--accent);
+                font-weight: 600;
+            }
+
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+        }
+
+        .profile-card, .stat-card, .info-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(15,23,42,0.05);
+        }
+
+        .profile-card {
+            overflow: hidden;
+        }
+
+        .profile-cover {
+            height: 110px;
+            background: linear-gradient(135deg, #e8efff, #f6f8ff);
+            position: relative;
+        }
+
+        .profile-avatar-large {
+            width: 118px;
+            height: 118px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b6ef8, #3158e8);
+            border: 5px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 44px;
+            font-weight: 800;
+            position: absolute;
+            left: 50%;
+            bottom: -58px;
+            transform: translateX(-50%);
+            box-shadow: 0 12px 25px rgba(59,110,248,0.28);
+        }
+
+        .camera-btn {
+            position: absolute;
+            right: -4px;
+            bottom: 8px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .profile-main-info {
+            padding: 72px 24px 20px;
+            text-align: center;
+        }
+
+            .profile-main-info h2 {
+                font-size: 24px;
+                font-weight: 800;
+                margin-bottom: 6px;
+            }
+
+            .profile-main-info p {
+                color: var(--text-muted);
+                font-size: 14px;
+            }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 14px;
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .profile-details {
+            padding: 0 24px 24px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+            .detail-row span {
+                color: var(--text-muted);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .detail-row strong {
+                color: var(--text);
+                font-weight: 600;
+            }
+
+        .small-pill {
+            background: #eef2ff;
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .password-btn {
+            margin-top: 16px;
+            width: 100%;
+            height: 46px;
+            border: none;
+            border-radius: 12px;
+            background: #f4f6fb;
+            color: var(--accent);
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+        }
+
+        .right-area {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .stat-card {
+            padding: 22px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .blue {
+            background: #eef3ff;
+            color: #3b6ef8;
+        }
+
+        .green {
+            background: #dcfce7;
+            color: #22c55e;
+        }
+
+        .purple {
+            background: #f3e8ff;
+            color: #8b5cf6;
+        }
+
+        .orange {
+            background: #fff4df;
+            color: #f59e0b;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        .info-card {
+            padding: 26px;
+        }
+
+        .card-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .card-title h3 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .card-title p {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .profile-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+            .form-group label {
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--text);
+            }
+
+            .form-group input, .form-group select {
+                height: 46px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 0 14px;
+                font-family: inherit;
+                color: var(--text);
+                outline: none;
+                background: white;
+            }
+
+                .form-group input[readonly], .form-group input:disabled {
+                    background: #f3f5fa;
+                    color: var(--text-muted);
+                }
+
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-cancel {
+            height: 44px;
+            padding: 0 22px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-save {
+            height: 44px;
+            padding: 0 22px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            background: var(--accent);
+            border: none;
+            color: white;
+            box-shadow: 0 8px 18px rgba(59,110,248,0.25);
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .activity-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .activity-date {
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .password-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .password-modal.open {
+                display: flex;
+            }
+
+        .password-modal-box {
+            background: white;
+            border-radius: 18px;
+            padding: 32px;
+            width: 420px;
+        }
+
+            .password-modal-box h3 {
+                font-size: 18px;
+                font-weight: 800;
+                margin-bottom: 20px;
+            }
+
+        .modal-input {
+            width: 100%;
+            height: 46px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0 14px;
+            font-family: inherit;
+            outline: none;
+            margin-bottom: 14px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 8px;
+        }
+    </style>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;padding:12px 16px;border-radius:10px;margin-bottom:20px;font-size:14px;">
+        <i class="fas fa-check-circle"></i> @TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:12px 16px;border-radius:10px;margin-bottom:20px;font-size:14px;">
+        <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+    </div>
+}
+
+<div class="profile-header">
+    <div class="profile-title-row">
+        <div>
+            <h1>Profilim</h1>
+            <p>Kullanıcı bilgilerinizi, tercihlerinizi ve analiz geçmişinizi görüntüleyin.</p>
+        </div>
+        <div class="breadcrumb">Ana Sayfa &nbsp;›&nbsp; <span>Profilim</span></div>
+    </div>
+</div>
+
+<div class="profile-layout">
+
+    <!-- SOL -->
+    <div class="profile-card">
+        <div class="profile-cover">
+            <div class="profile-avatar-large">
+                @initial
+                <div class="camera-btn"><i class="fas fa-camera"></i></div>
+            </div>
+        </div>
+        <div class="profile-main-info">
+            <h2>@(string.IsNullOrEmpty(Model.FullName) ? "Kullanıcı" : Model.FullName)</h2>
+            <p>@Model.Email</p>
+            <div class="role-badge"><i class="fas fa-crown"></i> Investor</div>
+        </div>
+        <div class="profile-details">
+            <div class="detail-row">
+                <span><i class="fas fa-briefcase"></i> Üyelik Tipi</span>
+                <strong class="small-pill">Standart</strong>
+            </div>
+            <div class="detail-row">
+                <span><i class="fas fa-calendar-days"></i> Kayıt Tarihi</span>
+                <strong>@kayitTarihi</strong>
+            </div>
+            <div class="detail-row">
+                <span><i class="fas fa-clock"></i> Son Giriş</span>
+                <strong>@sonGiris</strong>
+            </div>
+            <div class="detail-row">
+                <span><i class="fas fa-location-dot"></i> Varsayılan İl</span>
+                <strong>@(string.IsNullOrEmpty(Model.DefaultIl) ? "-" : Model.DefaultIl)</strong>
+            </div>
+            <div class="detail-row">
+                <span><i class="fas fa-bell"></i> Bildirimler</span>
+                <strong style="color:@(Model.BildirimAktif ? "#22c55e" : "#ef4444")">
+                    @(Model.BildirimAktif ? "Açık" : "Kapalı")
+                </strong>
+            </div>
+            <button class="password-btn" onclick="document.getElementById('passwordModal').classList.add('open')">
+                <span><i class="fas fa-lock"></i> Şifre Değiştir</span>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- SAĞ -->
+    <div class="right-area">
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-map"></i></div>
+                <div><div class="stat-value">—</div><div class="stat-label">İncelenen İl</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-chart-line"></i></div>
+                <div><div class="stat-value">—</div><div class="stat-label">Karşılaştırma</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fas fa-robot"></i></div>
+                <div><div class="stat-value">—</div><div class="stat-label">AI Analizi</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange"><i class="fas fa-bookmark"></i></div>
+                <div><div class="stat-value">—</div><div class="stat-label">Kaydedilen İl</div></div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="card-title-row">
+                <div class="card-title">
+                    <h3>Profil Bilgileri</h3>
+                    <p>Kişisel bilgilerinizi güncelleyin.</p>
+                </div>
+            </div>
+            <form asp-action="UpdateProfile" asp-controller="Profile" method="post" class="profile-form">
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <label>Ad Soyad</label>
+                    <input type="text" name="fullName" value="@Model.FullName" />
+                </div>
+                <div class="form-group">
+                    <label>Varsayılan İl</label>
+                    <input type="text" name="defaultIl" value="@Model.DefaultIl" placeholder="örn. İstanbul" />
+                </div>
+                <div class="form-group">
+                    <label>E-posta</label>
+                    <input type="email" value="@Model.Email" disabled />
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <input type="text" value="Investor" readonly />
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel">İptal</button>
+                    <button type="submit" class="btn-save">Değişiklikleri Kaydet</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bottom-grid">
+            <div class="info-card">
+                <div class="card-title-row">
+                    <div class="card-title">
+                        <h3>Son Aktivitelerim</h3>
+                        <p>Hesabınızdaki son aktiviteler.</p>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-left">
+                        <div class="stat-icon blue" style="width:34px;height:34px;font-size:14px;"><i class="fas fa-chart-line"></i></div>
+                        <span>AI Asistan'a soru sordunuz.</span>
+                    </div>
+                    <div class="activity-date">Bugün</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-left">
+                        <div class="stat-icon green" style="width:34px;height:34px;font-size:14px;"><i class="fas fa-code-compare"></i></div>
+                        <span>İl karşılaştırması yaptınız.</span>
+                    </div>
+                    <div class="activity-date">Bugün</div>
+                </div>
+                <div class="activity-item" style="border-bottom:none;">
+                    <div class="activity-left">
+                        <div class="stat-icon purple" style="width:34px;height:34px;font-size:14px;"><i class="fas fa-newspaper"></i></div>
+                        <span>Haber analizi görüntülediniz.</span>
+                    </div>
+                    <div class="activity-date">Bugün</div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-title-row">
+                    <div class="card-title">
+                        <h3>Hesap Bilgileri</h3>
+                        <p>Genel hesap durumunuz.</p>
+                    </div>
+                </div>
+                <div class="detail-row" style="border-top:none;">
+                    <span><i class="fas fa-envelope"></i> E-posta</span>
+                    <strong>@Model.Email</strong>
+                </div>
+                <div class="detail-row">
+                    <span><i class="fas fa-shield-halved"></i> Güvenlik</span>
+                    <strong style="color:#22c55e;">Aktif</strong>
+                </div>
+                <div class="detail-row">
+                    <span><i class="fas fa-bell"></i> Bildirimler</span>
+                    <strong>@(Model.BildirimAktif ? "Açık" : "Kapalı")</strong>
+                </div>
+                <div class="detail-row">
+                    <span><i class="fas fa-language"></i> Dil</span>
+                    <strong>Türkçe</strong>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Şifre Modal -->
+<div class="password-modal" id="passwordModal">
+    <div class="password-modal-box">
+        <h3><i class="fas fa-lock" style="color:var(--accent);margin-right:8px;"></i> Şifre Değiştir</h3>
+        <form asp-action="ChangePassword" asp-controller="Profile" method="post">
+            @Html.AntiForgeryToken()
+            <input type="password" name="currentPassword" class="modal-input" placeholder="Mevcut Şifre" />
+            <input type="password" name="newPassword" class="modal-input" placeholder="Yeni Şifre" />
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="document.getElementById('passwordModal').classList.remove('open')">İptal</button>
+                <button type="submit" class="btn-save">Güncelle</button>
+            </div>
+        </form>
+    </div>
+</div>

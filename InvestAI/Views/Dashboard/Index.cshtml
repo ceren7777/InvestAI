@@ -1,0 +1,829 @@
+@{
+    ViewData["Title"] = "İl / İlçe Ara";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>İl / İlçe Ara</h1>
+        <p>Türkiye genelindeki yatırım lokasyonlarını keşfedin.</p>
+    </div>
+
+    <div class="filter-card">
+        <div class="filter-group">
+            <label>İl Seçin</label>
+            <select id="ilSelect">
+                <option value="">-- İl Seçin --</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>İlçe Seçin</label>
+            <select id="ilceSelect" disabled>
+                <option value="">Tümü</option>
+            </select>
+        </div>
+        <button onclick="doSearch()"><i class="fas fa-magnifying-glass"></i> Ara</button>
+        <button class="clear-btn" onclick="clearSearch()">Temizle</button>
+    </div>
+
+    <div class="content-grid">
+        <!-- SOL LİSTE -->
+        <div class="result-card">
+            <div class="result-header">
+                <h2 id="listTitle">Sonuçlar</h2>
+                <span class="result-count" id="listCount"></span>
+            </div>
+
+            <div class="result-col-labels">
+                <span>İl / İlçe</span>
+                <span>Yatırım Skoru</span>
+                <span>Potansiyel</span>
+            </div>
+
+            <div id="listBody">
+                <div class="empty-state">
+                    <i class="fas fa-map-location-dot"></i>
+                    <p>Bir il seçerek başlayın</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAĞ HARİTA -->
+        <div class="map-card">
+            <div class="map-card-header">
+                <h2>Harita Görünümü</h2>
+                <div class="map-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> 60+</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#3b6ef8"></div> 40-60</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> 20-40</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> 20 altı</div>
+                </div>
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- DETAY PANEL -->
+    <div class="detail-card" id="detailCard">
+        <div class="detail-top">
+            <div>
+                <div class="detail-name" id="detailName">-</div>
+                <div class="detail-il" id="detailIlName">-</div>
+            </div>
+            <div style="text-align:right;">
+                <div class="detail-score-big" id="detailScoreVal">-</div>
+                <div class="detail-score-lbl">/100 Yatırım Skoru</div>
+            </div>
+        </div>
+        <div class="detail-bars" id="detailBars"></div>
+        <div class="detail-footer" id="detailFooter"></div>
+    </div>
+</div>
+
+<!-- AI MODAL -->
+<div class="ai-modal-overlay" id="aiModal">
+    <div class="ai-modal">
+        <div class="ai-modal-header">
+            <div class="ai-modal-title" id="aiModalTitle">AI Analizi</div>
+            <button class="btn-close" onclick="closeAiModal()"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div id="aiModalBody"></div>
+    </div>
+</div>
+
+<style>
+    .page-container {
+        padding: 0;
+        font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+        color: #111827;
+        margin-bottom: 6px;
+        font-weight: 700;
+    }
+
+    .page-header p {
+        color: #6b7280;
+        margin-bottom: 20px;
+        font-size: 13.5px;
+    }
+
+    .filter-card {
+        background: white;
+        padding: 16px 20px;
+        border-radius: 18px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        margin-bottom: 20px;
+        border: 1px solid #e8ecf4;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        flex: 1;
+    }
+
+        .filter-group label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+    .filter-card select {
+        border: 1px solid #dbe3ef;
+        border-radius: 10px;
+        padding: 9px 12px;
+        outline: none;
+        font-family: inherit;
+        font-size: 13.5px;
+        color: #111827;
+        background: #f8fafc;
+        appearance: none;
+        transition: all 0.2s;
+    }
+
+        .filter-card select:focus {
+            border-color: #3157f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(49,87,246,0.1);
+        }
+
+    .filter-card button {
+        border: none;
+        border-radius: 10px;
+        padding: 9px 20px;
+        background: #3157f6;
+        color: white;
+        cursor: pointer;
+        font-weight: 600;
+        font-family: inherit;
+        font-size: 13.5px;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+
+        .filter-card button:hover {
+            background: #4a6af8;
+        }
+
+    .filter-card .clear-btn {
+        background: #eef2f7;
+        color: #374151;
+    }
+
+        .filter-card .clear-btn:hover {
+            background: #e2e8f0;
+        }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 20px;
+        height: calc(100vh - 280px);
+        min-height: 450px;
+    }
+
+    .result-card {
+        background: white;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        border: 1px solid #e8ecf4;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+        .result-header h2 {
+            font-size: 16px;
+            color: #111827;
+            font-weight: 700;
+        }
+
+    .result-count {
+        font-size: 11.5px;
+        color: #6b7280;
+        background: #f4f6fb;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 1px solid #e8ecf4;
+    }
+
+    .result-col-labels {
+        display: grid;
+        grid-template-columns: 1fr 80px 90px;
+        padding: 6px 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+
+    #listBody {
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .result-item {
+        display: grid;
+        grid-template-columns: 1fr 80px 90px;
+        align-items: center;
+        border: 1px solid #eef2f7;
+        border-radius: 12px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+        .result-item:hover {
+            border-color: #3157f6;
+            background: #f8faff;
+        }
+
+        .result-item.active {
+            border-color: #3157f6;
+            background: rgba(49,87,246,0.05);
+        }
+
+        .result-item h3 {
+            font-size: 13px;
+            margin-bottom: 2px;
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .result-item p {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+    .result-score {
+        font-size: 13px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .pot-badge {
+        font-size: 10.5px;
+        font-weight: 600;
+        padding: 2px 9px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    .pot-high {
+        background: rgba(34,197,94,0.1);
+        color: #16a34a;
+    }
+
+    .pot-mid {
+        background: rgba(245,158,11,0.1);
+        color: #d97706;
+    }
+
+    .pot-low {
+        background: rgba(239,68,68,0.1);
+        color: #dc2626;
+    }
+
+    .map-card {
+        background: white;
+        border-radius: 18px;
+        padding: 0;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        border: 1px solid #e8ecf4;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .map-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #e8ecf4;
+        flex-shrink: 0;
+    }
+
+        .map-card-header h2 {
+            font-size: 16px;
+            color: #111827;
+            font-weight: 700;
+        }
+
+    .map-legend {
+        display: flex;
+        gap: 12px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        color: #6b7280;
+    }
+
+    .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    #map {
+        flex: 1;
+        min-height: 300px;
+    }
+
+    /* DETAIL */
+    .detail-card {
+        background: white;
+        border-radius: 18px;
+        border: 1px solid #e8ecf4;
+        padding: 20px;
+        margin-top: 16px;
+        display: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+        .detail-card.visible {
+            display: block;
+        }
+
+    .detail-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 14px;
+    }
+
+    .detail-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .detail-il {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 3px;
+    }
+
+    .detail-score-big {
+        font-size: 28px;
+        font-weight: 800;
+        color: #3157f6;
+        line-height: 1;
+    }
+
+    .detail-score-lbl {
+        font-size: 10px;
+        color: #9ca3af;
+        text-align: right;
+    }
+
+    .detail-bars {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+
+    .mini-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .mini-label {
+        width: 58px;
+        color: #9ca3af;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+
+    .mini-track {
+        flex: 1;
+        height: 5px;
+        background: #eef2f7;
+        border-radius: 3px;
+    }
+
+    .mini-fill {
+        height: 100%;
+        border-radius: 3px;
+    }
+
+    .mini-val {
+        width: 28px;
+        text-align: right;
+        font-weight: 700;
+        font-size: 10px;
+        color: #6b7280;
+    }
+
+    .detail-footer {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .detail-tag {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 8px;
+        background: #f4f6fb;
+        border: 1px solid #e8ecf4;
+        color: #6b7280;
+    }
+
+    .btn-ai {
+        margin-left: auto;
+        padding: 8px 18px;
+        background: linear-gradient(135deg, #3157f6, #7c3aed);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* AI MODAL */
+    .ai-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .ai-modal-overlay.visible {
+            display: flex;
+        }
+
+    .ai-modal {
+        background: white;
+        border-radius: 18px;
+        width: 90%;
+        max-width: 860px;
+        max-height: 85vh;
+        overflow-y: auto;
+        padding: 28px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .ai-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .ai-modal-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .btn-close {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 1px solid #e8ecf4;
+        background: #f4f6fb;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    .agent-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+    }
+
+    .agent-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 14px;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: #374151;
+        border: 1px solid #e8ecf4;
+    }
+
+        .agent-card h5 {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #3157f6;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+    .swot-card {
+        background: rgba(49,87,246,0.04);
+        border: 1px solid rgba(49,87,246,0.15);
+        border-radius: 12px;
+        padding: 16px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #374151;
+        grid-column: 1 / -1;
+    }
+
+        .swot-card h5 {
+            font-size: 12px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #e8ecf4;
+        border-top-color: #3157f6;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .loading-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 30px;
+        color: #9ca3af;
+        font-size: 13px;
+        justify-content: center;
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        color: #d1d5db;
+        gap: 10px;
+    }
+
+        .empty-state i {
+            font-size: 36px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+        }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+    let allData = [], markers = [], currentData = [];
+    let selectedIl = '', selectedIlce = '';
+
+    const map = L.map('map').setView([39, 35], 6);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© CartoDB © OpenStreetMap'
+    }).addTo(map);
+
+    function getColor(s) {
+        if (s >= 60) return '#22c55e';
+        if (s >= 40) return '#3b6ef8';
+        if (s >= 20) return '#f59e0b';
+        return '#ef4444';
+    }
+
+    function getPot(s) {
+        if (s >= 50) return `<span class="pot-badge pot-high">Yüksek</span>`;
+        if (s >= 40) return `<span class="pot-badge pot-mid">Orta Yüksek</span>`;
+        if (s >= 30) return `<span class="pot-badge pot-mid">Orta</span>`;
+        return `<span class="pot-badge pot-low">Düşük</span>`;
+    }
+    
+
+    async function loadIller() {
+        const res = await fetch('/api/InvestAnalysis/iller');
+        const iller = await res.json();
+        const sel = document.getElementById('ilSelect');
+        iller.forEach(il => {
+            const o = document.createElement('option');
+            o.value = il; o.textContent = il; sel.appendChild(o);
+        });
+    }
+
+    document.getElementById('ilSelect').addEventListener('change', async function() {
+        selectedIl = this.value;
+        const s = document.getElementById('ilceSelect');
+        s.innerHTML = '<option value="">Tümü</option>';
+        s.disabled = !selectedIl;
+        if (!selectedIl) return;
+        const res = await fetch(`/api/InvestAnalysis/ilceler/${encodeURIComponent(selectedIl)}`);
+        const ilceler = await res.json();
+        ilceler.forEach(ilce => {
+            const o = document.createElement('option');
+            o.value = ilce; o.textContent = ilce; s.appendChild(o);
+        });
+    });
+
+    document.getElementById('ilceSelect').addEventListener('change', function() {
+        selectedIlce = this.value;
+    });
+
+    async function doSearch() {
+        if (!selectedIl) return;
+        if (!allData.length) {
+            const res = await fetch('/api/InvestAnalysis/all');
+            allData = await res.json();
+        }
+
+        let filtered = allData.filter(d => d.il === selectedIl);
+        if (selectedIlce) filtered = filtered.filter(d => d.ilce.toLowerCase() === selectedIlce.toLowerCase());
+        filtered.sort((a, b) => (b.yatirimSkoru||0) - (a.yatirimSkoru||0));
+        currentData = filtered;
+
+        document.getElementById('listTitle').textContent = selectedIl;
+        document.getElementById('listCount').textContent = `${filtered.length} ilçe`;
+
+        document.getElementById('listBody').innerHTML = filtered.map((d, i) => {
+            const s = d.yatirimSkoru || 0;
+            return `
+                <div class="result-item" onclick="selectItem(${i})" id="item_${i}">
+                    <div>
+                        <h3>${d.ilce}</h3>
+                        <p>${d.ilceDominantSektorAdi || 'Karma Sektör'}</p>
+                    </div>
+                    <div class="result-score">${s.toFixed(1)}</div>
+                    ${getPot(s)}
+                </div>`;
+        }).join('');
+
+        // Harita
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+
+        try {
+            const locRes = await fetch(`/api/InvestmentAnalysis/locations/${encodeURIComponent(selectedIl)}`);
+            const locs = await locRes.json();
+
+            filtered.forEach((d, i) => {
+                const loc = locs.find(l => l.district && d.ilce &&
+                    l.district.toLowerCase().trim() === d.ilce.toLowerCase().trim());
+                if (!loc || !loc.latitude) return;
+
+                const color = getColor(d.yatirimSkoru || 0);
+                const m = L.circleMarker([loc.latitude, loc.longitude], {
+                    radius: 14, fillColor: color, color: 'white', weight: 2.5, fillOpacity: 0.9
+                }).addTo(map);
+
+                m.bindTooltip(`<strong>${d.ilce}</strong><br>${(d.yatirimSkoru||0).toFixed(1)}`, { direction: 'top' });
+                m.bindPopup(`
+                    <div style="font-family:Arial,sans-serif;min-width:130px;">
+                        <strong>${d.ilce}</strong><br>
+                        <span style="color:#666;font-size:12px;">${d.il}</span><br>
+                        <span style="font-size:13px;font-weight:700;color:${color}">Skor: ${(d.yatirimSkoru||0).toFixed(1)}</span><br>
+                        <span style="font-size:11px;color:#888;">${d.ilceDominantSektorAdi||''}</span>
+                    </div>`);
+                m.on('click', () => selectItem(i));
+                markers.push(m);
+            });
+
+            if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds().pad(0.3));
+        } catch(e) { console.error(e); }
+
+        document.getElementById('detailCard').classList.remove('visible');
+    }
+
+    function selectItem(idx) {
+        const d = currentData[idx];
+        if (!d) return;
+
+        document.querySelectorAll('.result-item').forEach(e => e.classList.remove('active'));
+        const el = document.getElementById(`item_${idx}`);
+        if (el) { el.classList.add('active'); el.scrollIntoView({block:'nearest'}); }
+
+        document.getElementById('detailName').textContent = d.ilce;
+        document.getElementById('detailIlName').textContent = `${d.il} · ${d.ilceDominantSektorAdi || 'Karma Sektör'}`;
+        document.getElementById('detailScoreVal').textContent = (d.yatirimSkoru||0).toFixed(1);
+
+        const scores = [
+            {label:'Nüfus', val:d.nufusSkoru||0, color:'#3b6ef8'},
+            {label:'Büyüme', val:d.buyumeSkoru||0, color:'#22c55e'},
+            {label:'İşsizlik', val:d.issizlikSkoru||0, color:'#f59e0b'},
+            {label:'Eğitim', val:d.egitimSkoru||0, color:'#8b5cf6'},
+            {label:'Enerji', val:d.enerjiSkoru||0, color:'#14b8a6'},
+            {label:'Doğalgaz', val:d.dogalgazSkoru||0, color:'#ef4444'},
+            {label:'Maden', val:d.madenSkoru||0, color:'#f97316'},
+            {label:'OSB', val:d.osbSkoru||0, color:'#06b6d4'},
+            {label:'Tarım', val:d.tarimSkoru||0, color:'#84cc16'},
+            {label:'Teşvik', val:d.tesvikSkoru||0, color:'#ec4899'},
+        ];
+
+        document.getElementById('detailBars').innerHTML = scores.map(s => `
+            <div class="mini-bar">
+                <span class="mini-label">${s.label}</span>
+                <div class="mini-track"><div class="mini-fill" style="width:${s.val}%;background:${s.color}"></div></div>
+                <span class="mini-val">${s.val.toFixed(0)}</span>
+            </div>`).join('');
+
+        document.getElementById('detailFooter').innerHTML = `
+            ${d.tesvikBolge ? `<span class="detail-tag">Bölge ${d.tesvikBolge}</span>` : ''}
+            ${(d.osbSayisi||0) > 0 ? `<span class="detail-tag">${d.osbSayisi} OSB</span>` : ''}
+            ${(d.madenSayisi||0) > 0 ? `<span class="detail-tag">${d.madenSayisi} Maden</span>` : ''}
+            <button class="btn-ai" onclick="openAiModal('${d.il}','${d.ilce}')">
+                <i class="fas fa-robot"></i> AI Analiz
+            </button>`;
+
+        document.getElementById('detailCard').classList.add('visible');
+    }
+
+    async function openAiModal(il, ilce) {
+        document.getElementById('aiModalTitle').textContent = `${ilce} — AI Çok Ajanlı Analiz`;
+        document.getElementById('aiModalBody').innerHTML = `<div class="loading-row"><div class="spinner"></div> 6 AI ajanı analiz yapıyor...</div>`;
+        document.getElementById('aiModal').classList.add('visible');
+
+        try {
+            const res = await fetch(`/api/OllamaAgent/${encodeURIComponent(il)}/${encodeURIComponent(ilce)}`);
+            const data = await res.json();
+            document.getElementById('aiModalBody').innerHTML = `
+                <div class="agent-grid">
+                    <div class="agent-card"><h5><i class="fas fa-chart-line"></i> Ekonomi</h5>${data.ekonomiAnalizi||'-'}</div>
+                    <div class="agent-card"><h5><i class="fas fa-gem"></i> Doğal Kaynak</h5>${data.dogalKaynakAnalizi||'-'}</div>
+                    <div class="agent-card"><h5><i class="fas fa-industry"></i> Altyapı</h5>${data.altyapiAnalizi||'-'}</div>
+                    <div class="agent-card"><h5><i class="fas fa-triangle-exclamation"></i> Risk</h5>${data.riskAnalizi||'-'}</div>
+                    <div class="agent-card"><h5><i class="fas fa-lightbulb"></i> Fırsat</h5>${data.firsatAnalizi||'-'}</div>
+                    <div class="swot-card"><h5><i class="fas fa-file-lines"></i> SWOT & Yatırım Önerisi</h5>${data.swotVeOneri||'-'}</div>
+                </div>`;
+        } catch(e) {
+            document.getElementById('aiModalBody').innerHTML = `<p style="color:#ef4444;padding:16px;">Hata: Ollama servisi çalışıyor mu?</p>`;
+        }
+    }
+
+    function closeAiModal() { document.getElementById('aiModal').classList.remove('visible'); }
+
+    function clearSearch() {
+        document.getElementById('ilSelect').value = '';
+        document.getElementById('ilceSelect').innerHTML = '<option value="">Tümü</option>';
+        document.getElementById('ilceSelect').disabled = true;
+        selectedIl = ''; selectedIlce = ''; currentData = [];
+        markers.forEach(m => map.removeLayer(m)); markers = [];
+        map.setView([39, 35], 6);
+        document.getElementById('listBody').innerHTML = `<div class="empty-state"><i class="fas fa-map-location-dot"></i><p>Bir il seçerek başlayın</p></div>`;
+        document.getElementById('listTitle').textContent = 'Sonuçlar';
+        document.getElementById('listCount').textContent = '';
+        document.getElementById('detailCard').classList.remove('visible');
+    }
+
+    loadIller();
+</script>

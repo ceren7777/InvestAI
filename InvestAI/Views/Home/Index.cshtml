@@ -1,0 +1,839 @@
+﻿@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+@section Styles {
+    <style>
+        .home-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+
+        /* WELCOME BANNER */
+        .welcome-banner {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #0f1724 0%, #1a2845 100%);
+            border-radius: 20px;
+            padding: 28px 36px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .welcome-banner::before {
+                content: '';
+                position: absolute;
+                top: -60px;
+                right: -60px;
+                width: 220px;
+                height: 220px;
+                background: rgba(49,87,246,0.18);
+                border-radius: 50%;
+            }
+
+            .welcome-banner::after {
+                content: '';
+                position: absolute;
+                bottom: -80px;
+                right: 120px;
+                width: 260px;
+                height: 260px;
+                background: rgba(49,87,246,0.08);
+                border-radius: 50%;
+            }
+
+            .welcome-banner h1 {
+                font-size: 22px;
+                font-weight: 700;
+                margin-bottom: 4px;
+            }
+
+            .welcome-banner p {
+                font-size: 13px;
+                color: rgba(255,255,255,0.55);
+            }
+
+        .welcome-icon {
+            font-size: 64px;
+            opacity: 0.12;
+            position: absolute;
+            right: 36px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* LEFT */
+        .left-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .map-search-card {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e8ecf4;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+            .search-row input {
+                flex: 1;
+                border: 1px solid #dbe3ef;
+                border-radius: 10px;
+                padding: 9px 14px;
+                font-size: 13.5px;
+                font-family: inherit;
+                outline: none;
+                color: #111827;
+                background: #f8fafc;
+            }
+
+                .search-row input:focus {
+                    border-color: #3157f6;
+                    background: white;
+                }
+
+            .search-row button {
+                background: #3157f6;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                padding: 9px 20px;
+                font-size: 13.5px;
+                font-weight: 600;
+                font-family: inherit;
+                cursor: pointer;
+            }
+
+        .popular-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .popular-label {
+            font-size: 11.5px;
+            color: #9ca3af;
+            font-weight: 600;
+        }
+
+        .popular-tag {
+            font-size: 11.5px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: #f4f6fb;
+            border: 1px solid #e8ecf4;
+            color: #374151;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+            .popular-tag:hover {
+                background: #e8ecff;
+                border-color: #3157f6;
+                color: #3157f6;
+            }
+
+        .turkey-map-area {
+            background: #f0f4ff;
+            border-radius: 12px;
+            height: 230px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e8ecf4;
+        }
+
+        #turkey-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+            #turkey-svg path {
+                fill: #c8d8f8;
+                stroke: white;
+                stroke-width: 0.5;
+                cursor: pointer;
+                transition: fill 0.2s;
+            }
+
+                #turkey-svg path.score-high {
+                    fill: #22c55e;
+                }
+
+                #turkey-svg path.score-mid {
+                    fill: #3b6ef8;
+                }
+
+                #turkey-svg path.score-lowm {
+                    fill: #f59e0b;
+                }
+
+                #turkey-svg path.score-low {
+                    fill: #ef4444;
+                }
+
+                #turkey-svg path:hover {
+                    opacity: 0.75;
+                }
+
+        .map-tooltip {
+            position: absolute;
+            background: #111827;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 14px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #e8ecf4;
+            padding: 16px 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+
+        .stat-badge {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #22c55e;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11.5px;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        /* RIGHT */
+        .right-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .score-card {
+            background: linear-gradient(135deg,#3157f6,#5f7cff);
+            border-radius: 18px;
+            padding: 24px;
+            color: white;
+            text-align: center;
+        }
+
+            .score-card h3 {
+                font-size: 13px;
+                font-weight: 600;
+                opacity: 0.8;
+                margin-bottom: 16px;
+            }
+
+        .score-circle-wrap {
+            width: 110px;
+            height: 110px;
+            border: 8px solid rgba(255,255,255,0.25);
+            border-radius: 50%;
+            margin: 0 auto 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .score-circle-wrap span {
+                font-size: 30px;
+                font-weight: 800;
+            }
+
+        .score-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .score-card p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .score-rank {
+            font-size: 11px;
+            opacity: 0.65;
+            margin: 4px 0;
+        }
+
+        .detail-btn {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 18px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+            .detail-btn:hover {
+                background: rgba(255,255,255,0.25);
+            }
+
+        .cat-card-sm {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e8ecf4;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+            .cat-card-sm h3 {
+                font-size: 13.5px;
+                font-weight: 700;
+                margin-bottom: 12px;
+                color: #111827;
+            }
+
+        .cat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .cat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            color: #374151;
+            transition: all 0.15s;
+        }
+
+            .cat-item:hover {
+                border-color: #3157f6;
+                background: #eef2ff;
+            }
+
+        .cat-item-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .cat-item-label {
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+
+        .cat-item-sub {
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        /* FULL WIDTH */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* KATEGORİ SKORU */
+        .kategori-skor-row {
+            display: grid;
+            grid-template-columns: repeat(6,1fr);
+            gap: 14px;
+        }
+
+        .kat-skor-card {
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #e8ecf4;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .kat-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .kat-name {
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .kat-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .kat-max {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        /* BOTTOM */
+        .bottom-section {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr;
+            gap: 20px;
+        }
+
+        .trend-card, .ai-card, .sentiment-card {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e8ecf4;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+            .trend-card h2, .ai-card h2, .sentiment-card h2 {
+                font-size: 14px;
+                font-weight: 700;
+                color: #111827;
+                margin-bottom: 14px;
+            }
+
+        .sentiment-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+            .sentiment-card h2 {
+                align-self: flex-start;
+            }
+
+        .sentiment-donut {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin-bottom: 10px;
+        }
+
+        .sentiment-pct {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            font-size: 22px;
+            font-weight: 800;
+            color: #22c55e;
+        }
+
+        .sentiment-label {
+            font-size: 11.5px;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .sentiment-bars {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sent-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11.5px;
+        }
+
+        .sent-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .sent-name {
+            flex: 1;
+            color: #6b7280;
+        }
+
+        .sent-pct {
+            font-weight: 700;
+            color: #111827;
+        }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+}
+
+<div class="home-grid">
+
+    <!-- WELCOME -->
+    <div class="welcome-banner">
+        <div>
+            <h1>Merhaba, Hoş Geldiniz! 👋</h1>
+            <p>Yapay zeka destekli yatırım analiz platformuna hoş geldiniz.</p>
+        </div>
+        <i class="fas fa-chart-line welcome-icon"></i>
+    </div>
+
+    <!-- LEFT -->
+    <div class="left-main">
+        <div class="map-search-card">
+            <div class="search-row">
+                <input type="text" id="homeSearch" placeholder="İl veya ilçe ara..." />
+                <button onclick="goSearch()"><i class="fas fa-magnifying-glass"></i> Ara</button>
+            </div>
+            <div class="popular-row">
+                <span class="popular-label">Popüler Aramalar:</span>
+                <span class="popular-tag" onclick="goIl('İstanbul')">İstanbul</span>
+                <span class="popular-tag" onclick="goIl('Ankara')">Ankara</span>
+                <span class="popular-tag" onclick="goIl('İzmir')">İzmir</span>
+                <span class="popular-tag" onclick="goIl('Bursa')">Bursa</span>
+                <span class="popular-tag" onclick="goIl('Antalya')">Antalya</span>
+                <span class="popular-tag" onclick="goIl('Gaziantep')">Gaziantep</span>
+            </div>
+            <div class="turkey-map-area">
+                <svg id="turkey-svg" viewBox="0 0 1000 450" preserveAspectRatio="xMidYMid meet"></svg>
+                <div class="map-tooltip" id="mapTooltip"></div>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background:rgba(49,87,246,0.1);color:#3157f6;"><i class="fas fa-map-location-dot"></i></div>
+                    <span class="stat-badge">81 İl</span>
+                </div>
+                <div class="stat-value" id="stat-ilce">-</div>
+                <div class="stat-label">Toplam İlçe</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background:rgba(34,197,94,0.1);color:#22c55e;"><i class="fas fa-arrow-trend-up"></i></div>
+                    <span class="stat-badge">↑ Yüksek</span>
+                </div>
+                <div class="stat-value" id="stat-avg">-</div>
+                <div class="stat-label">Ortalama Yatırım Skoru</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b;"><i class="fas fa-industry"></i></div>
+                    <span class="stat-badge">Aktif</span>
+                </div>
+                <div class="stat-value" id="stat-osb">-</div>
+                <div class="stat-label">OSB'li İlçe</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background:rgba(239,68,68,0.1);color:#ef4444;"><i class="fas fa-gem"></i></div>
+                    <span class="stat-badge">MTA Kayıtlı</span>
+                </div>
+                <div class="stat-value" id="stat-maden">-</div>
+                <div class="stat-label">Maden Kaynağı Olan İl</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-sidebar">
+        <div class="score-card">
+            <h3>Genel Yatırım Skoru 🏆</h3>
+            <div class="score-circle-wrap"><span id="top-score-val">-</span></div>
+            <h2 id="top-score-ilce">-</h2>
+            <p id="top-score-il">-</p>
+            <div class="score-rank" id="top-score-rank"></div>
+            <a href="/Dashboard" class="detail-btn">Detaylı Analiz →</a>
+        </div>
+        <div class="cat-card-sm">
+            <h3>📊 Kategori Skorları</h3>
+            <div class="cat-grid">
+                <a class="cat-item" href="/Dashboard">
+                    <div class="cat-item-icon" style="background:rgba(49,87,246,0.1);color:#3157f6;"><i class="fas fa-magnifying-glass"></i></div>
+                    <div><div class="cat-item-label">İl/İlçe Ara</div><div class="cat-item-sub">Detaylı analiz</div></div>
+                </a>
+                <a class="cat-item" href="#">
+                    <div class="cat-item-icon" style="background:rgba(34,197,94,0.1);color:#22c55e;"><i class="fas fa-seedling"></i></div>
+                    <div><div class="cat-item-label">Tarım</div><div class="cat-item-sub">81 il verisi</div></div>
+                </a>
+                <a class="cat-item" href="#">
+                    <div class="cat-item-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b;"><i class="fas fa-bolt"></i></div>
+                    <div><div class="cat-item-label">Enerji</div><div class="cat-item-sub">GES/RES/HES</div></div>
+                </a>
+                <a class="cat-item" href="#">
+                    <div class="cat-item-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6;"><i class="fas fa-gem"></i></div>
+                    <div><div class="cat-item-label">Maden</div><div class="cat-item-sub">1849 kayıt</div></div>
+                </a>
+                <a class="cat-item" href="#">
+                    <div class="cat-item-icon" style="background:rgba(239,68,68,0.1);color:#ef4444;"><i class="fas fa-truck"></i></div>
+                    <div><div class="cat-item-label">Lojistik</div><div class="cat-item-sub">Hava/Kara/Deniz</div></div>
+                </a>
+                <a class="cat-item" href="#">
+                    <div class="cat-item-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6;"><i class="fas fa-robot"></i></div>
+                    <div><div class="cat-item-label">AI Analiz</div><div class="cat-item-sub">6 Ajan</div></div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- KATEGORİ SKORU SATIRI -->
+    <div class="full-width">
+        <div class="kategori-skor-row">
+            <div class="kat-skor-card"><div class="kat-icon">📈</div><div class="kat-name">Ekonomik Güç</div><div><span class="kat-val" id="kat-ekonomi">-</span><span class="kat-max"> /100</span></div></div>
+            <div class="kat-skor-card"><div class="kat-icon">🚛</div><div class="kat-name">Ulaşım & Altyapı</div><div><span class="kat-val" id="kat-ulasim">-</span><span class="kat-max"> /100</span></div></div>
+            <div class="kat-skor-card"><div class="kat-icon">👥</div><div class="kat-name">Nüfus & Demografi</div><div><span class="kat-val" id="kat-nufus">-</span><span class="kat-max"> /100</span></div></div>
+            <div class="kat-skor-card"><div class="kat-icon">🌿</div><div class="kat-name">Yaşam Kalitesi</div><div><span class="kat-val" id="kat-yasam">-</span><span class="kat-max"> /100</span></div></div>
+            <div class="kat-skor-card"><div class="kat-icon">♻️</div><div class="kat-name">Çevre & Sürdürülebilirlik</div><div><span class="kat-val" id="kat-cevre">-</span><span class="kat-max"> /100</span></div></div>
+            <div class="kat-skor-card"><div class="kat-icon">💻</div><div class="kat-name">Yenilik & Teknoloji</div><div><span class="kat-val" id="kat-teknoloji">-</span><span class="kat-max"> /100</span></div></div>
+        </div>
+    </div>
+
+    <!-- BOTTOM -->
+    <div class="full-width">
+        <div class="bottom-section">
+
+            <!-- TREND -->
+            <div class="trend-card">
+                <h2>📉 Yatırım Potansiyeli Trendi</h2>
+                <canvas id="trendChart" height="170"></canvas>
+            </div>
+
+            <!-- AI -->
+            <div class="ai-card">
+                <h2>🧠 AI Yatırım Asistanı</h2>
+                <div id="chat-area" style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;">
+                    <div style="background:#3157f6;color:white;border-radius:12px 12px 12px 3px;padding:10px 14px;font-size:12.5px;line-height:1.5;">Kocaeli'de yatırım yapmak mantıklı mı?</div>
+                    <div style="background:#f4f6fb;color:#374151;border-radius:12px 12px 3px 12px;padding:10px 14px;font-size:12.5px;line-height:1.6;">Kocaeli; sanayi altyapısı, lojistik erişimi ve OSB yoğunluğu ile Türkiye'nin en yüksek yatırım potansiyeline sahip illerinden biridir.</div>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:12px;">
+                    <input type="text" id="aiInput" placeholder="Bir il veya ilçe sorun..." style="flex:1;border:1px solid #dbe3ef;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;" />
+                    <button onclick="askAI()" style="background:#3157f6;color:white;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+
+            <!-- SENTIMENT -->
+            <div class="sentiment-card">
+                <h2>📰 FinBERT Haber Sentiment Analizi</h2>
+                <div class="sentiment-donut">
+                    <canvas id="sentimentChart"></canvas>
+                    <div class="sentiment-pct">%72</div>
+                </div>
+                <div class="sentiment-label">Pozitif Finansal Haber Etkisi</div>
+                <div class="sentiment-bars">
+                    <div class="sent-row"><div class="sent-dot" style="background:#22c55e;"></div><span class="sent-name">Pozitif</span><span class="sent-pct">%72</span></div>
+                    <div class="sent-row"><div class="sent-dot" style="background:#e8ecf4;"></div><span class="sent-name">Nötr</span><span class="sent-pct">%15</span></div>
+                    <div class="sent-row"><div class="sent-dot" style="background:#ef4444;"></div><span class="sent-name">Negatif</span><span class="sent-pct">%13</span></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script>
+        function goIl(il) { window.location.href = `/Dashboard?il=${encodeURIComponent(il)}`; }
+        function goSearch() {
+            const q = document.getElementById('homeSearch').value.trim();
+            if (q) window.location.href = `/Dashboard?il=${encodeURIComponent(q)}`;
+        }
+        document.getElementById('homeSearch').addEventListener('keydown', e => { if (e.key === 'Enter') goSearch(); });
+
+        let ilScoreMap = {};
+
+        // Türkiye GeoJSON haritası
+        async function loadTurkeyMap() {
+            try {
+                const geo = await fetch('https://raw.githubusercontent.com/cihadturhan/tr-geojson/master/geo/tr-cities-utf8.json').then(r => r.json());
+                const svg = d3.select('#turkey-svg');
+                const w = 1000, h = 450;
+                const proj = d3.geoMercator().fitSize([w, h], geo);
+                const path = d3.geoPath().projection(proj);
+                const tooltip = document.getElementById('mapTooltip');
+                const container = document.querySelector('.turkey-map-area');
+
+                svg.selectAll('path')
+                    .data(geo.features)
+                    .enter().append('path')
+                    .attr('d', path)
+                    .attr('data-il', d => d.properties.name)
+                    .on('mousemove', function(event, d) {
+                        const ilName = d.properties.name;
+                        const score = getIlScore(ilName);
+                        tooltip.style.display = 'block';
+                        const rect = container.getBoundingClientRect();
+                        tooltip.style.left = (event.clientX - rect.left + 12) + 'px';
+                        tooltip.style.top  = (event.clientY - rect.top  - 35) + 'px';
+                        tooltip.textContent = score !== null ? `${ilName}  •  ${score.toFixed(1)}` : ilName;
+                    })
+                    .on('mouseleave', () => { tooltip.style.display = 'none'; })
+                    .on('click', (e, d) => goIl(d.properties.name));
+            } catch(err) { console.error('Harita yüklenemedi:', err); }
+        }
+
+        function getIlScore(name) {
+            if (ilScoreMap[name] !== undefined) return ilScoreMap[name];
+            // normalize
+            const norm = s => s.replace(/İ/g,'i').replace(/Ş/g,'s').replace(/Ğ/g,'g').replace(/Ü/g,'u').replace(/Ö/g,'o').replace(/Ç/g,'c').replace(/ı/g,'i').toLowerCase();
+            for (const [k,v] of Object.entries(ilScoreMap)) {
+                if (norm(k) === norm(name)) return v;
+            }
+            return null;
+        }
+
+        function applyMapColors() {
+            document.querySelectorAll('#turkey-svg path').forEach(p => {
+                const il = p.getAttribute('data-il');
+                const score = getIlScore(il);
+                if (score === null) return;
+                p.classList.remove('score-high','score-mid','score-lowm','score-low');
+                if      (score >= 60) p.classList.add('score-high');
+                else if (score >= 40) p.classList.add('score-mid');
+                else if (score >= 20) p.classList.add('score-lowm');
+                else                  p.classList.add('score-low');
+            });
+        }
+
+        async function loadData() {
+            try {
+                const res = await fetch('/api/InvestAnalysis/all');
+                const data = await res.json();
+
+                // Stats
+                document.getElementById('stat-ilce').textContent = data.length;
+                const avg = data.reduce((s,d) => s + (d.yatirimSkoru||0), 0) / data.length;
+                document.getElementById('stat-avg').textContent = avg.toFixed(1);
+                document.getElementById('stat-osb').textContent = data.filter(d => d.osbSayisi > 0).length;
+                document.getElementById('stat-maden').textContent = new Set(data.filter(d => d.madenSayisi > 0).map(d => d.il)).size;
+
+                // Top skor
+                const top = data[0];
+                if (top) {
+                    document.getElementById('top-score-val').textContent  = (top.yatirimSkoru||0).toFixed(1);
+                    document.getElementById('top-score-ilce').textContent = top.ilce;
+                    document.getElementById('top-score-il').textContent   = top.il;
+                    document.getElementById('top-score-rank').textContent = `${data.indexOf(top)+1} / ${data.length}`;
+                }
+
+                // İl skor map
+                data.forEach(d => {
+                    if (!ilScoreMap[d.il] || d.yatirimSkoru > ilScoreMap[d.il])
+                        ilScoreMap[d.il] = d.yatirimSkoru || 0;
+                });
+                applyMapColors();
+
+                // Kategori skorları
+                const avg2 = key => { const v = data.map(d=>d[key]||0).filter(x=>x>0); return v.length ? (v.reduce((a,b)=>a+b,0)/v.length).toFixed(1) : '-'; };
+                document.getElementById('kat-ekonomi').textContent   = avg2('osbSkoru');
+                document.getElementById('kat-ulasim').textContent    = avg2('dogalgazSkoru');
+                document.getElementById('kat-nufus').textContent     = avg2('nufusSkoru');
+                document.getElementById('kat-yasam').textContent     = avg2('egitimSkoru');
+                document.getElementById('kat-cevre').textContent     = avg2('enerjiSkoru');
+                document.getElementById('kat-teknoloji').textContent = avg2('madenSkoru');
+
+                // Trend chart
+                const years = [2019,2020,2021,2022,2023,2024];
+                const trendData = years.map((y,i) => +(avg*(0.78+i*0.044)).toFixed(1));
+                new Chart(document.getElementById('trendChart'), {
+                    type: 'line',
+                    data: {
+                        labels: years,
+                        datasets: [{ label:'Ort. Yatırım Skoru', data: trendData, borderColor:'#3157f6', backgroundColor:'rgba(49,87,246,0.08)', fill:true, tension:0.4, pointBackgroundColor:'#3157f6', pointRadius:5 }]
+                    },
+                    options: { plugins:{legend:{display:false}}, scales:{ y:{grid:{color:'#f0f0f0'},ticks:{font:{size:11}}}, x:{grid:{display:false},ticks:{font:{size:11}}} } }
+                });
+
+            } catch(e) { console.error(e); }
+        }
+
+        // Sentiment donut
+        new Chart(document.getElementById('sentimentChart'), {
+            type: 'doughnut',
+            data: { datasets: [{ data:[72,15,13], backgroundColor:['#22c55e','#e8ecf4','#ef4444'], borderWidth:0 }] },
+            options: { cutout:'72%', plugins:{legend:{display:false}} }
+        });
+
+        // AI chat
+        async function askAI() {
+            const q = document.getElementById('aiInput').value.trim();
+            if (!q) return;
+            const area = document.getElementById('chat-area');
+            area.innerHTML += `<div style="background:#3157f6;color:white;border-radius:12px 12px 12px 3px;padding:10px 14px;font-size:12.5px;">${q}</div>`;
+            const id = 'ai-' + Date.now();
+            area.innerHTML += `<div id="${id}" style="background:#f4f6fb;color:#9ca3af;border-radius:12px 12px 3px 12px;padding:10px 14px;font-size:12.5px;"><i class="fas fa-spinner fa-spin"></i> Analiz yapılıyor...</div>`;
+            document.getElementById('aiInput').value = '';
+            area.scrollTop = area.scrollHeight;
+            setTimeout(() => {
+                const el = document.getElementById(id);
+                if (el) { el.style.color='#374151'; el.textContent='Sorgunuz alındı. AI analiz modülü aktif olduğunda detaylı yanıt verilecektir.'; }
+                area.scrollTop = area.scrollHeight;
+            }, 1500);
+        }
+        document.getElementById('aiInput').addEventListener('keydown', e => { if (e.key==='Enter') askAI(); });
+
+        loadTurkeyMap();
+        loadData();
+    </script>
+}

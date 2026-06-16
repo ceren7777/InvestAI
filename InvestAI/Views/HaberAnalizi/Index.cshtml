@@ -1,0 +1,579 @@
+﻿@{
+    ViewData["Title"] = "Haber Analizi";
+}
+
+<div class="news-page">
+
+    <header class="news-header">
+        <h1>Haber Analizi</h1>
+        <p>FinBERT modeli ile haber duyarlılık analizlerini keşfedin.</p>
+    </header>
+
+    <section class="filter-card">
+        <div class="filter-group">
+            <label>İl Seçin</label>
+            <select id="ilSelect"></select>
+        </div>
+
+        <div class="filter-group">
+            <label>Tarih Aralığı</label>
+            <input type="text" value="01.05.2024 - 31.05.2024" />
+        </div>
+
+        <div class="filter-group">
+            <label>Kaynak</label>
+            <select id="kaynakSelect">
+                <option>Tümü</option>
+                <option>Ekonomi Haberleri</option>
+                <option>Finans Haberleri</option>
+                <option>Yerel Haberler</option>
+            </select>
+        </div>
+
+        <button class="analyze-btn" onclick="analyzeNews()">Analiz Et</button>
+    </section>
+
+    <section class="news-grid">
+        <div class="card sentiment-card">
+            <h3>Genel Duyarlılık</h3>
+
+            <div class="donut-wrap">
+                <div class="donut" id="donutChart">
+                    <div class="donut-center" id="donutCenter">%0</div>
+                </div>
+
+                <div class="legend">
+                    <div><span class="dot positive"></span> Pozitif <b id="posCount">%0 (0)</b></div>
+                    <div><span class="dot neutral"></span> Nötr <b id="neuCount">%0 (0)</b></div>
+                    <div><span class="dot negative"></span> Negatif <b id="negCount">%0 (0)</b></div>
+                </div>
+            </div>
+
+            <p class="total-news">Toplam Haber: <strong id="totalNews">0</strong></p>
+
+            <div class="sentiment-score-box">
+                Duyarlılık Skoru <strong id="sentimentScore">0</strong> /100
+            </div>
+        </div>
+
+        <div class="card trend-card">
+            <h3>Duyarlılık Trendi</h3>
+
+            <div class="trend-chart">
+                <svg viewBox="0 0 420 240" preserveAspectRatio="none">
+                    <line x1="35" y1="45" x2="400" y2="45" />
+                    <line x1="35" y1="90" x2="400" y2="90" />
+                    <line x1="35" y1="135" x2="400" y2="135" />
+                    <line x1="35" y1="180" x2="400" y2="180" />
+
+                    <polyline class="blue-line" points="45,150 100,120 155,95 210,82 265,110 320,95 380,70" />
+                    <polyline class="green-line" points="45,175 100,165 155,138 210,160 265,150 320,135 380,120" />
+                    <polyline class="red-line" points="45,195 100,188 155,182 210,176 265,172 320,170 380,168" />
+                </svg>
+            </div>
+
+            <div class="trend-legend">
+                <span><i class="positive"></i> Pozitif</span>
+                <span><i class="neutral"></i> Nötr</span>
+                <span><i class="negative"></i> Negatif</span>
+            </div>
+        </div>
+
+        <div class="card news-list-card">
+            <h3>Öne Çıkan Haberler</h3>
+            <div id="newsList">
+                <div class="empty-state">
+                    <div class="empty-icon">📰</div>
+                    <p>İl seçip Analiz Et butonuna basın.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+@section Styles {
+    <style>
+        .news-page {
+            padding: 18px 28px;
+        }
+
+        .news-header {
+            margin-bottom: 18px;
+        }
+
+            .news-header h1 {
+                margin: 0;
+                font-size: 20px;
+                font-weight: 800;
+                color: #101828;
+            }
+
+            .news-header p {
+                margin-top: 4px;
+                font-size: 13px;
+                color: #98a2b3;
+            }
+
+        .filter-card {
+            background: white;
+            border: 1px solid #edf1f7;
+            border-radius: 16px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1.4fr 1fr auto;
+            gap: 16px;
+            align-items: end;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.05);
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+            .filter-group label {
+                font-size: 12px;
+                font-weight: 700;
+                color: #344054;
+            }
+
+            .filter-group select,
+            .filter-group input {
+                height: 40px;
+                border-radius: 11px;
+                border: 1px solid #dbe3ef;
+                padding: 0 12px;
+                outline: none;
+                font-size: 13px;
+                color: #344054;
+                background: white;
+            }
+
+        .analyze-btn {
+            height: 40px;
+            padding: 0 24px;
+            border: none;
+            border-radius: 11px;
+            background: #3157f6;
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+            .analyze-btn:hover {
+                background: #2445d4;
+            }
+
+            .analyze-btn:disabled {
+                background: #a0aec0;
+                cursor: not-allowed;
+            }
+
+        .error-msg {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: 1.05fr 1.25fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #edf1f7;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.06);
+            padding: 22px;
+            min-height: 330px;
+        }
+
+            .card h3 {
+                margin: 0 0 22px;
+                font-size: 16px;
+                font-weight: 800;
+                color: #101828;
+            }
+
+        .donut-wrap {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .donut {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: conic-gradient(#22c55e 0% 0%, #fbbf24 0% 0%, #ef4444 0% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.5s;
+        }
+
+        .donut-center {
+            width: 75px;
+            height: 75px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #22c55e;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            font-size: 13px;
+            color: #344054;
+        }
+
+            .legend div {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .legend b {
+                margin-left: 4px;
+                color: #101828;
+            }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+            .dot.positive,
+            .positive {
+                background: #22c55e;
+            }
+
+            .dot.neutral,
+            .neutral {
+                background: #fbbf24;
+            }
+
+            .dot.negative,
+            .negative {
+                background: #ef4444;
+            }
+
+        .total-news {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #667085;
+        }
+
+        .sentiment-score-box {
+            margin-top: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #667085;
+        }
+
+            .sentiment-score-box strong {
+                font-size: 24px;
+                font-weight: 800;
+                color: #3157f6;
+            }
+
+        .trend-chart {
+            height: 220px;
+        }
+
+            .trend-chart svg {
+                width: 100%;
+                height: 100%;
+            }
+
+            .trend-chart line {
+                stroke: #edf1f7;
+                stroke-width: 1;
+            }
+
+            .trend-chart polyline {
+                fill: none;
+                stroke-width: 3;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+        .blue-line {
+            stroke: #3157f6;
+        }
+
+        .green-line {
+            stroke: #22c55e;
+        }
+
+        .red-line {
+            stroke: #ef4444;
+        }
+
+        .trend-legend {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #667085;
+            margin-top: 4px;
+        }
+
+            .trend-legend i {
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                display: inline-block;
+                margin-right: 5px;
+            }
+
+        .news-list-card {
+            max-height: 330px;
+            overflow-y: auto;
+        }
+
+        .news-item {
+            border-radius: 14px;
+            padding: 13px;
+            background: #f8fafc;
+            margin-bottom: 12px;
+            border-left: 4px solid transparent;
+        }
+
+            .news-item h4 {
+                margin: 0 0 8px;
+                font-size: 13px;
+                line-height: 1.4;
+                color: #101828;
+            }
+
+            .news-item .meta {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .news-item .translated {
+                font-size: 11px;
+                color: #98a2b3;
+                margin-top: 6px;
+                font-style: italic;
+            }
+
+        .positive-border {
+            border-left-color: #22c55e;
+        }
+
+        .neutral-border {
+            border-left-color: #fbbf24;
+        }
+
+        .negative-border {
+            border-left-color: #ef4444;
+        }
+
+        .tag {
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .positive-tag {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .neutral-tag {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .negative-tag {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .score-tag {
+            font-size: 11px;
+            color: #98a2b3;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 55px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        @@media(max-width: 1100px) {
+            .filter-card,
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        const iller = [
+            "Adana","Adıyaman","Afyonkarahisar","Ağrı","Amasya","Ankara","Antalya","Artvin",
+            "Aydın","Balıkesir","Bilecik","Bingöl","Bitlis","Bolu","Burdur","Bursa",
+            "Çanakkale","Çankırı","Çorum","Denizli","Diyarbakır","Edirne","Elazığ","Erzincan",
+            "Erzurum","Eskişehir","Gaziantep","Giresun","Gümüşhane","Hakkari","Hatay","Isparta",
+            "Mersin","İstanbul","İzmir","Kars","Kastamonu","Kayseri","Kırklareli","Kırşehir",
+            "Kocaeli","Konya","Kütahya","Malatya","Manisa","Kahramanmaraş","Mardin","Muğla",
+            "Muş","Nevşehir","Niğde","Ordu","Rize","Sakarya","Samsun","Siirt",
+            "Sinop","Sivas","Tekirdağ","Tokat","Trabzon","Tunceli","Şanlıurfa","Uşak",
+            "Van","Yozgat","Zonguldak","Aksaray","Bayburt","Karaman","Kırıkkale","Batman",
+            "Şırnak","Bartın","Ardahan","Iğdır","Yalova","Karabük","Kilis","Osmaniye","Düzce"
+        ];
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const ilSelect = document.getElementById("ilSelect");
+
+            iller.forEach(il => {
+                const option = document.createElement("option");
+                option.value = il;
+                option.textContent = il;
+                ilSelect.appendChild(option);
+            });
+
+            ilSelect.value = "Kocaeli";
+        });
+
+        async function analyzeNews() {
+            const il = document.getElementById("ilSelect").value;
+            const btn = document.querySelector(".analyze-btn");
+
+            btn.disabled = true;
+            btn.innerText = "Analiz ediliyor...";
+
+            const oldError = document.getElementById("errorBox");
+            if (oldError) oldError.remove();
+
+            try {
+                const response = await fetch(`/api/HaberAnalizi/news/${encodeURIComponent(il)}`);
+
+                if (!response.ok) {
+                    throw new Error("API hatası: " + response.status);
+                }
+
+                const data = await response.json();
+                console.log("Gelen veri:", data);
+
+                renderResults(data);
+
+            } catch (error) {
+                console.error("Hata:", error);
+
+                document.querySelector(".filter-card").insertAdjacentHTML("afterend", `
+                    <div id="errorBox" class="error-msg">
+                        FinBERT servisine bağlanılamadı. Servisin çalıştığından emin olun.
+                    </div>
+                `);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Analiz Et";
+            }
+        }
+
+        function renderResults(data) {
+            const results = data.results || [];
+            const total = data.haber_sayisi || data.haberSayisi || results.length || 0;
+            const sentimentScore = data.sentiment_score || data.sentimentScore || 50;
+
+            const positive = results.filter(x => x.label === "Positive").length;
+            const neutral = results.filter(x => x.label === "Neutral").length;
+            const negative = results.filter(x => x.label === "Negative").length;
+
+            const posPct = total ? Math.round((positive / total) * 100) : 0;
+            const neuPct = total ? Math.round((neutral / total) * 100) : 0;
+            const negPct = total ? Math.round((negative / total) * 100) : 0;
+
+            document.getElementById("donutChart").style.background =
+                `conic-gradient(#22c55e 0% ${posPct}%, #fbbf24 ${posPct}% ${posPct + neuPct}%, #ef4444 ${posPct + neuPct}% 100%)`;
+
+            document.getElementById("donutCenter").innerText = `%${posPct}`;
+            document.getElementById("posCount").innerText = `%${posPct} (${positive})`;
+            document.getElementById("neuCount").innerText = `%${neuPct} (${neutral})`;
+            document.getElementById("negCount").innerText = `%${negPct} (${negative})`;
+            document.getElementById("totalNews").innerText = total;
+            document.getElementById("sentimentScore").innerText = sentimentScore;
+
+            const newsList = document.getElementById("newsList");
+
+            if (!results.length) {
+                newsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📰</div>
+                        <p>Bu il için haber bulunamadı.</p>
+                    </div>`;
+                return;
+            }
+
+            newsList.innerHTML = results.slice(0, 4).map(r => {
+                const label = r.label || "Neutral";
+
+                const tagClass =
+                    label === "Positive" ? "positive-tag" :
+                    label === "Negative" ? "negative-tag" :
+                    "neutral-tag";
+
+                const borderClass =
+                    label === "Positive" ? "positive-border" :
+                    label === "Negative" ? "negative-border" :
+                    "neutral-border";
+
+                const labelTr =
+                    label === "Positive" ? "Pozitif" :
+                    label === "Negative" ? "Negatif" :
+                    "Nötr";
+
+                const original = r.original_text || r.originalText || "";
+                const translated = r.translated_text || r.translatedText || "";
+                const score = r.score ? Math.round(r.score * 100) : 0;
+
+                return `
+                    <div class="news-item ${borderClass}">
+                        <h4>${original}</h4>
+                        <p class="translated">${translated}</p>
+
+                        <div class="meta">
+                            <span class="tag ${tagClass}">${labelTr}</span>
+                            <span class="score-tag">Güven: %${score}</span>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+    </script>
+}

@@ -1,0 +1,816 @@
+﻿@{
+    ViewData["Title"] = "Kategoriler";
+}
+
+
+<div class="categories-page">
+
+<header class="header">
+    <div>
+        <h1>Kategoriler</h1>
+        <p>Yatırım kararlarınızı etkileyecek kategori detaylarını keşfedin.</p>
+    </div>
+
+    <div class="category-search">
+        <input id="ilSearch"
+               placeholder="İl ara..."
+               oninput="filterIller()"
+               autocomplete="off" />
+        <div id="ilDropdown" class="il-dropdown"></div>
+    </div>
+</header>
+
+    <section class="tabs" id="tabBar">
+        <button class="selected" onclick="switchTab('ekonomik',this)">📊 Ekonomik Güç</button>
+        <button onclick="switchTab('altyapi',this)">🛣️ Ulaşım & Altyapı</button>
+        <button onclick="switchTab('nufus',this)">👥 Nüfus & Demografi</button>
+        <button onclick="switchTab('yasam',this)">💜 Yaşam Kalitesi</button>
+        <button onclick="switchTab('cevre',this)">🌱 Çevre & Sürdürülebilirlik</button>
+        <button onclick="switchTab('yenilik',this)">⚙️ Yenilik & Teknoloji</button>
+    </section>
+
+    <section class="cards" id="katGrid">
+        <div class="empty-full">
+            <p>🗺️ Arama kutusundan bir il seçin.</p>
+        </div>
+    </section>
+
+</div>
+
+@section Styles {
+    <style>
+        .categories-page {
+            padding: 18px 28px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 18px;
+        }
+
+            .header h1 {
+                margin: 0;
+                font-size: 20px;
+                font-weight: 800;
+                color: #101828;
+            }
+
+            .header p {
+                margin-top: 4px;
+                font-size: 13px;
+                color: #98a2b3;
+            }
+
+        .right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            position: relative;
+        }
+
+            .right input {
+                width: 330px;
+                height: 43px;
+                border: 1px solid #dbe3ef;
+                border-radius: 13px;
+                padding: 0 16px;
+                outline: none;
+                background: white;
+                color: #667085;
+                font-family: inherit;
+                font-size: 13px;
+            }
+
+                .right input:focus {
+                    border-color: #3157f6;
+                }
+
+        .il-dropdown {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            width: 330px;
+            background: white;
+            border: 1px solid #e8ecf4;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+            z-index: 200;
+            max-height: 220px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .il-dropdown-item {
+            padding: 10px 16px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+            .il-dropdown-item:last-child {
+                border-bottom: none;
+            }
+
+            .il-dropdown-item:hover {
+                background: #eef4ff;
+                color: #3157f6;
+            }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+            .tabs button {
+                border: 1px solid #e1e7f0;
+                background: white;
+                border-radius: 12px;
+                height: 40px;
+                padding: 0 17px;
+                font-size: 14px;
+                font-weight: 700;
+                color: #344054;
+                box-shadow: 0 5px 16px rgba(16,24,40,0.04);
+                cursor: pointer;
+                font-family: inherit;
+                transition: all 0.15s;
+            }
+
+                .tabs button:hover {
+                    border-color: #3157f6;
+                    color: #3157f6;
+                }
+
+            .tabs .selected {
+                background: #eef4ff;
+                color: #3157f6;
+                border-color: #d7e4ff;
+            }
+
+        .cards {
+            display: grid;
+            grid-template-columns: 1fr 2.1fr 2.3fr;
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        .card {
+            background: white;
+            border-radius: 22px;
+            padding: 26px;
+            min-height: 355px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.07);
+            border: 1px solid #edf1f7;
+        }
+
+            .card h3 {
+                margin: 0 0 28px;
+                font-size: 17px;
+                font-weight: 800;
+                color: #101828;
+            }
+
+
+        .category-search {
+            position: relative;
+            margin-top: 2px;
+        }
+
+            .category-search input {
+                width: 240px;
+                height: 43px;
+                border: 1px solid #dbe3ef;
+                border-radius: 13px;
+                padding: 0 16px;
+                outline: none;
+                background: white;
+                color: #667085;
+                font-size: 13px;
+            }
+
+                .category-search input:focus {
+                    border-color: #3157f6;
+                }
+
+        .il-dropdown {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            width: 280px;
+            background: white;
+            border: 1px solid #e8ecf4;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+            z-index: 200;
+            max-height: 220px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .il-dropdown-item {
+            padding: 10px 16px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+            .il-dropdown-item:hover {
+                background: #eef4ff;
+                color: #3157f6;
+            }
+
+        /* SCORE CARD */
+        .score {
+            text-align: center;
+            color: #3157f6;
+            font-size: 56px;
+            font-weight: 800;
+            margin-top: 42px;
+            line-height: 1;
+        }
+
+            .score span {
+                color: #667085;
+                font-size: 22px;
+                font-weight: 500;
+            }
+
+        .rank {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 10px;
+            color: #101828;
+        }
+
+        .desc {
+            color: #667085;
+            font-size: 14px;
+            line-height: 1.55;
+            margin-top: 34px;
+        }
+
+        .score-card button {
+            margin-top: 28px;
+            width: 100%;
+            height: 46px;
+            border: none;
+            border-radius: 13px;
+            background: #3157f6;
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+            .score-card button:hover {
+                background: #2445d4;
+            }
+
+        /* INDICATORS */
+        .indicators .item {
+            margin-bottom: 22px;
+        }
+
+            .indicators .item:last-child {
+                margin-bottom: 0;
+            }
+
+            .indicators .item > div:first-child {
+                display: flex;
+                justify-content: space-between;
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+
+        .indicators span {
+            color: #344054;
+            font-weight: 600;
+        }
+
+        .indicators b {
+            color: #344054;
+        }
+
+        .bar {
+            height: 10px;
+            background: #eef2f7;
+            border-radius: 50px;
+            overflow: hidden;
+        }
+
+            .bar i {
+                height: 100%;
+                display: block;
+                background: #3157f6;
+                border-radius: 50px;
+                transition: width 0.6s ease;
+            }
+
+                .bar i.red {
+                    background: #ef4444;
+                }
+
+                .bar i.green {
+                    background: #22c55e;
+                }
+
+        .bar-sub {
+            font-size: 10px;
+            color: #9ca3af;
+            text-align: right;
+            margin-top: 3px;
+        }
+
+        /* RANKING */
+        .ranking {
+            position: relative;
+        }
+
+        .chart {
+            height: 245px;
+            position: relative;
+            margin-top: 4px;
+        }
+
+        .reference-chart svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .ranking p,
+        .rank-note {
+            margin-top: -8px;
+            font-size: 14px;
+            color: #667085;
+        }
+
+            .chart svg {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                overflow: visible;
+            }
+
+            .chart circle {
+                fill: #3157f6;
+            }
+
+            .chart polyline {
+                fill: none;
+                stroke: #2f5bff;
+                stroke-width: 3;
+            }
+
+        .grid-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e7ebf2;
+        }
+
+        .y1 {
+            top: 35px;
+        }
+
+        .y2 {
+            top: 90px;
+        }
+
+        .y3 {
+            top: 145px;
+        }
+
+        .y4 {
+            top: 200px;
+        }
+
+        .n {
+            position: absolute;
+            color: #3157f6;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .n1 {
+            left: 9%;
+            top: 61%;
+        }
+
+        .n2 {
+            left: 25%;
+            top: 61%;
+        }
+
+        .n3 {
+            left: 41%;
+            top: 41%;
+        }
+
+        .n4 {
+            left: 57%;
+            top: 41%;
+        }
+
+        .n5 {
+            left: 73%;
+            top: 41%;
+        }
+
+        .n6 {
+            left: 89%;
+            top: 41%;
+        }
+
+        .ranking p {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #667085;
+        }
+
+        .empty-full {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 80px;
+            color: #9ca3af;
+            font-size: 16px;
+        }
+
+        @@media(max-width: 1100px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .right input {
+                width: 100%;
+            }
+
+            .il-dropdown {
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        let ilData = {};
+        let iller  = [];
+        let activeTab = 'ekonomik';
+        let selectedIl = 'Kocaeli';
+
+        async function loadData() {
+            try {
+                const res = await fetch('/api/InvestAnalysis/all');
+                const raw = await res.json();
+
+                ilData = {};
+                raw.forEach(d => {
+                    const ilAdi = d.il || d.Il;
+
+                    if (!ilAdi) return;
+
+                    if (!ilData[ilAdi]) {
+                        ilData[ilAdi] = [];
+                    }
+
+                    ilData[ilAdi].push(d);
+                });
+
+                iller = Object.keys(ilData).sort((a, b) => a.localeCompare(b, 'tr'));
+
+                selectedIl = iller.find(x => x.toLowerCase() === 'kocaeli') || iller[0];
+
+                if (selectedIl) {
+                    document.getElementById('ilSearch').value = selectedIl;
+                    render();
+                }
+
+                console.log("İller yüklendi:", iller);
+                console.log("Seçili il:", selectedIl);
+
+            } catch (e) {
+                console.error("Veri yüklenirken hata:", e);
+            }
+        }
+
+        function filterIller() {
+            const q = document.getElementById('ilSearch').value.trim().toLowerCase();
+            const dd = document.getElementById('ilDropdown');
+            if (!q) { dd.style.display = 'none'; return; }
+            const matches = iller.filter(il =>
+            il.toLocaleLowerCase('tr-TR').includes(q.toLocaleLowerCase('tr-TR'))
+        );
+            if (!matches.length) { dd.style.display = 'none'; return; }
+            dd.innerHTML = matches.slice(0,8).map(il =>
+                `<div class="il-dropdown-item" onclick="selectIl('${il}')">${il}</div>`
+            ).join('');
+            dd.style.display = 'block';
+        }
+
+        function selectIl(il) {
+            selectedIl = il;
+            document.getElementById('ilSearch').value = il;
+            document.getElementById('ilDropdown').style.display = 'none';
+            render();
+        }
+
+        document.addEventListener('click', e => {
+                   if (!e.target.closest('.category-search')) {
+            document.getElementById('ilDropdown').style.display = 'none';
+        }
+        });
+
+        function switchTab(tab, btn) {
+            activeTab = tab;
+            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            render();
+        }
+
+        /* HELPERS */
+        function avg(rows, key) {
+            const v = rows.map(r=>r[key]||0).filter(x=>x>0);
+            return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0;
+        }
+        function sumF(rows, key) { return rows.reduce((a,r)=>a+(r[key]||0),0); }
+        function fmt(v, d=1) { return (v==null||isNaN(v)) ? '—' : Number(v).toFixed(d); }
+        function fmtInt(v) { return v ? Number(v).toLocaleString('tr-TR') : '—'; }
+        function barClr(v) { return v>=60 ? 'green' : v>=25 ? '' : 'red'; }
+
+        function getRank(scoreKey) {
+            const scores = Object.entries(ilData)
+                .map(([il,r]) => ({ il, s: avg(r, scoreKey) }))
+                .sort((a,b) => b.s - a.s);
+            return { rank: scores.findIndex(x=>x.il===selectedIl)+1, total: scores.length };
+        }
+
+        function indRow(label, val, pct) {
+            const p = Math.min(pct||0, 100);
+            return `<div class="item">
+                <div><span>${label}</span><b>${fmt(val)}</b></div>
+                <div class="bar"><i class="${barClr(p)}" style="width:${p}%"></i></div>
+                <div class="bar-sub">${fmt(p)} / 100</div>
+            </div>`;
+        }
+
+        function rankingCard(scoreKey) {
+            const scores = Object.entries(ilData)
+                .map(([il, r]) => ({ il, s: avg(r, scoreKey) }))
+                .sort((a, b) => b.s - a.s);
+
+            const rank = scores.findIndex(x => x.il === selectedIl) + 1;
+            const total = scores.length;
+
+            const values = [rank + 1, rank + 1, rank, rank, rank, rank];
+
+            const points = [
+                { x: 55,  y: 150, v: values[0] },
+                { x: 135, y: 150, v: values[1] },
+                { x: 215, y: 105, v: values[2] },
+                { x: 295, y: 105, v: values[3] },
+                { x: 375, y: 105, v: values[4] },
+                { x: 455, y: 105, v: values[5] }
+            ];
+
+            const polyPts = points.map(p => `${p.x},${p.y}`).join(" ");
+
+            const gridLines = [55, 90, 125, 160, 195].map((y, i) => `
+                <text x="5" y="${y + 4}" font-size="11" fill="#98a2b3">${i + 1}</text>
+                <line x1="30" y1="${y}" x2="500" y2="${y}" stroke="#e7ebf2" stroke-width="1" />
+            `).join("");
+
+            const circles = points.map(p => `
+                <circle cx="${p.x}" cy="${p.y}" r="7" fill="#3157f6"></circle>
+            `).join("");
+
+            const labels = points.map(p => `
+                <text x="${p.x}" y="${p.y - 13}" text-anchor="middle"
+                      font-size="13" font-weight="800" fill="#3157f6">${p.v}</text>
+            `).join("");
+
+            return `
+                <div class="card ranking">
+                    <h3>Türkiye Sıralaması</h3>
+
+                    <div class="chart reference-chart">
+                        <svg viewBox="0 0 520 230" preserveAspectRatio="none">
+                            ${gridLines}
+
+                            <polyline
+                                points="${polyPts}"
+                                fill="none"
+                                stroke="#3157f6"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                            </polyline>
+
+                            ${circles}
+                            ${labels}
+                        </svg>
+                    </div>
+
+                    <p class="rank-note">Mevcut sıralama: <strong>${rank} / ${total}</strong> · *1 en iyi skoru ifade eder.</p>
+                </div>`;
+        }
+        
+
+        /* RENDER */
+        function render() {
+            const grid = document.getElementById('katGrid');
+            if (!selectedIl || !ilData[selectedIl]) {
+                grid.innerHTML = `<div class="empty-full">🗺️ Arama kutusundan bir il seçin.</div>`;
+                return;
+            }
+            const rows = ilData[selectedIl];
+            const map = { ekonomik: tabEkonomik, altyapi: tabAltyapi, nufus: tabNufus, yasam: tabYasam, cevre: tabCevre, yenilik: tabYenilik };
+            grid.innerHTML = (map[activeTab]||tabEkonomik)(rows);
+        }
+
+        /* ============ TABS ============ */
+        function tabEkonomik(rows) {
+            const osb = avg(rows, 'osbSkoru');
+            const maden = avg(rows, 'madenSkoru');
+            const yt = avg(rows, 'yatirimSkoru');
+            const egitim = avg(rows, 'egitimSkoru');
+            const enerji = avg(rows, 'enerjiSkoru');
+
+            const sektor = rows[0]?.ilDominantSektorAdi || rows[0]?.ilceDominantSektorAdi || '—';
+            const osbSayi = sumF(rows, 'osbSayisi');
+            const madSayi = sumF(rows, 'madenSayisi');
+
+            const { rank, total } = getRank('yatirimSkoru');
+
+            return `
+                <div class="card score-card">
+                    <h3>Ekonomik Güç Skoru</h3>
+                    <div class="score">${fmt(yt)} <span>/100</span></div>
+                    <p class="rank">Türkiye Sıralaması: ${rank} / ${total}</p>
+                    <p class="desc">${selectedIl}, ${sektor} sektörüyle öne çıkmaktadır. ${osbSayi} OSB ve ${madSayi} maden kaynağına sahiptir.</p>
+                    <button>Detaylı Rapor →</button>
+                </div>
+
+                <div class="card indicators">
+                    <h3>Alt Göstergeler</h3>
+                    ${indRow('OSB Skoru', osb, osb)}
+                    ${indRow('Maden Skoru', maden, maden)}
+                    ${indRow('Yatırım Skoru', yt, yt)}
+                    ${indRow('Eğitim Skoru', egitim, egitim)}
+                    ${indRow('Enerji Skoru', enerji, enerji)}
+                </div>
+
+                ${rankingCard('yatirimSkoru')}`;
+        }
+
+        function tabAltyapi(rows) {
+            const enerji = avg(rows, 'enerjiSkoru');
+            const dogalgaz = avg(rows, 'dogalgazSkoru');
+            const ulasim = avg(rows, 'ulasimSkoru');
+
+            const havaalani = rows.some(r => r.havaalaniVar === true);
+            const demiryolu = rows.some(r => r.demiryoluVar === true);
+            const liman = rows.some(r => r.limanVar === true);
+
+            const altyapiSkor = Math.round((enerji * 0.4) + (dogalgaz * 0.2) + (ulasim * 0.4));
+            const { rank, total } = getRank('ulasimSkoru');
+
+            return `
+                <div class="card score-card">
+                    <h3>Altyapı Skoru</h3>
+                    <div class="score">${fmt(altyapiSkor)} <span>/100</span></div>
+                    <p class="rank">Türkiye Sıralaması: ${rank} / ${total}</p>
+                    <p class="desc">
+                        ${selectedIl} için ulaşım ve altyapı durumu değerlendirildi.
+                        ${havaalani ? '✈️ Havalimanı var.' : ''}
+                        ${demiryolu ? '🚂 Demiryolu var.' : ''}
+                        ${liman ? '⚓ Liman var.' : ''}
+                    </p>
+                    <button>Detaylı Rapor →</button>
+                </div>
+
+                <div class="card indicators">
+                    <h3>Alt Göstergeler</h3>
+                    ${indRow('Enerji Skoru', enerji, enerji)}
+                    ${indRow('Doğalgaz Skoru', dogalgaz, dogalgaz)}
+                    ${indRow('Ulaşım Skoru', ulasim, ulasim)}
+                </div>
+
+                ${rankingCard('ulasimSkoru')}`;
+        }
+
+        function tabNufus(rows) {
+            const nufus = avg(rows, 'nufusSkoru');
+            const buyume = avg(rows, 'buyumeSkoru');
+            const topN = rows.reduce((a, r) => a + (r.population2024 || 0), 0);
+            const { rank, total } = getRank('nufusSkoru');
+
+            return `
+                <div class="card score-card">
+                    <h3>Nüfus & Demografi Skoru</h3>
+                    <div class="score">${fmt(nufus)} <span>/100</span></div>
+                    <p class="rank">Türkiye Sıralaması: ${rank} / ${total}</p>
+                    <p class="desc">${selectedIl} ilinde toplam ${fmtInt(topN)} kişi yaşamaktadır. ${rows.length} ilçe bulunmaktadır.</p>
+                    <button>Detaylı Rapor →</button>
+                </div>
+
+                <div class="card indicators">
+                    <h3>Alt Göstergeler</h3>
+                    ${indRow('Nüfus Skoru', nufus, nufus)}
+                    ${indRow('Büyüme Skoru', buyume, buyume)}
+                </div>
+
+                ${rankingCard('nufusSkoru')}`;
+        }
+
+        function tabYasam(rows) {
+            const egitim = avg(rows, 'egitimSkoru');
+            const issizlik = avg(rows, 'issizlikSkoru');
+            const tesvikSk = avg(rows, 'tesvikSkoru');
+            const tesvik = rows[0]?.tesvikBolge || '—';
+            const { rank, total } = getRank('egitimSkoru');
+
+            return `
+                <div class="card score-card">
+                    <h3>Yaşam Kalitesi Skoru</h3>
+                    <div class="score">${fmt(egitim)} <span>/100</span></div>
+                    <p class="rank">Türkiye Sıralaması: ${rank} / ${total}</p>
+                    <p class="desc">${selectedIl} ilinde eğitim skoru ${fmt(egitim)}/100. İşsizlik skoru ${fmt(issizlik)}/100. Teşvik Bölge ${tesvik}.</p>
+                    <button>Detaylı Rapor →</button>
+                </div>
+
+                <div class="card indicators">
+                    <h3>Alt Göstergeler</h3>
+                    ${indRow('Eğitim Skoru', egitim, egitim)}
+                    ${indRow('İşsizlik Skoru', issizlik, issizlik)}
+                    ${indRow('Teşvik Skoru', tesvikSk, tesvikSk)}
+                </div>
+
+                ${rankingCard('egitimSkoru')}`;
+        }
+
+        function tabCevre(rows) {
+            const tarim = avg(rows, 'tarimSkoru');
+            const enerji = avg(rows, 'enerjiSkoru');
+            const { rank, total } = getRank('tarimSkoru');
+
+            return `
+                <div class="card score-card">
+                    <h3>Çevre & Tarım Skoru</h3>
+                    <div class="score">${fmt(tarim)} <span>/100</span></div>
+                    <p class="rank">Türkiye Sıralaması: ${rank} / ${total}</p>
+                    <p class="desc">${selectedIl} ilinde tarım skoru ${fmt(tarim)}/100. Yenilenebilir enerji kapasitesi skoru ${fmt(enerji)}/100.</p>
+                    <button>Detaylı Rapor →</button>
+                </div>
+
+                <div class="card indicators">
+                    <h3>Alt Göstergeler</h3>
+                    ${indRow('Tarım Skoru', tarim, tarim)}
+                    ${indRow('Yenilenebilir Enerji', enerji, enerji)}
+                </div>
+
+                ${rankingCard('tarimSkoru')}`;
+        }
+
+        function tabYenilik(rows) {
+            const maden = avg(rows, 'madenSkoru');
+            const egitim = avg(rows, 'egitimSkoru');
+            const { rank, total } = getRank('madenSkoru');
+
+            return `
+                <div class="card score-card">
+                    <h3>Yenilik & Teknoloji Skoru</h3>
+                    <div class="score">${fmt(maden)} <span>/100</span></div>
+                    <p class="rank">Türkiye Sıralaması: ${rank} / ${total}</p>
+                    <p class="desc">${selectedIl} ilinde maden skoru ${fmt(maden)}/100. Eğitim skoru ${fmt(egitim)}/100.</p>
+                    <button>Detaylı Rapor →</button>
+                </div>
+
+                <div class="card indicators">
+                    <h3>Alt Göstergeler</h3>
+                    ${indRow('Maden Skoru', maden, maden)}
+                    ${indRow('Eğitim Skoru', egitim, egitim)}
+                </div>
+
+                ${rankingCard('madenSkoru')}`;
+        }
+
+        loadData();
+    </script>
+}

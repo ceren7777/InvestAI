@@ -1,0 +1,324 @@
+﻿@model InvestAI.Models.RegisterViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InvestAI - Kayıt Ol</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f4f7fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            width: 84%;
+            max-width: 1400px;
+            min-height: 760px;
+            display: flex;
+            border-radius: 14px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 25px 60px rgba(15,23,42,0.15);
+        }
+
+        .left-panel {
+            width: 50%;
+            background: linear-gradient(135deg, #061b46, #083b91);
+            color: white;
+            padding: 70px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 34px;
+            font-weight: 700;
+            margin-bottom: 70px;
+        }
+
+            .logo i {
+                color: #3b73ff;
+                font-size: 38px;
+            }
+
+        .left-panel h1 {
+            font-size: 42px;
+            line-height: 1.3;
+            margin-bottom: 28px;
+        }
+
+        .left-panel p {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #cbd7f1;
+            max-width: 560px;
+        }
+
+        .feature-card {
+            margin-top: 55px;
+            padding: 26px;
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 12px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: rgba(255,255,255,0.06);
+            max-width: 540px;
+        }
+
+        .feature-icon {
+            width: 62px;
+            height: 62px;
+            background: linear-gradient(135deg, #1d4ed8, #4169ff);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .map-bg {
+            position: absolute;
+            bottom: 80px;
+            left: 70px;
+            right: 70px;
+            height: 190px;
+            border-radius: 18px;
+            opacity: 0.25;
+            background: radial-gradient(circle at 25% 45%, #3b73ff 0 6px, transparent 7px), radial-gradient(circle at 48% 40%, #3b73ff 0 6px, transparent 7px), radial-gradient(circle at 70% 45%, #3b73ff 0 6px, transparent 7px), radial-gradient(circle at 36% 70%, #3b73ff 0 6px, transparent 7px), radial-gradient(circle at 58% 76%, #3b73ff 0 6px, transparent 7px), linear-gradient(135deg, #1d4ed8, #0f2f72);
+        }
+
+        .right-panel {
+            width: 50%;
+            padding: 42px 75px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-bottom: 50px;
+        }
+
+        .lang-btn, .theme-btn {
+            height: 38px;
+            border: 1px solid #dbe3f0;
+            background: white;
+            border-radius: 8px;
+            color: #475569;
+            padding: 0 14px;
+            cursor: pointer;
+        }
+
+        .form-box {
+            max-width: 520px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+            .form-box h2 {
+                font-size: 38px;
+                color: #071a44;
+                margin-bottom: 14px;
+            }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 16px;
+            margin-bottom: 40px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #172554;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            height: 58px;
+            border: 1px solid #dbe3f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            margin-bottom: 24px;
+        }
+
+            .input-group i {
+                color: #64748b;
+                margin-right: 16px;
+                font-size: 18px;
+            }
+
+            .input-group input {
+                border: none;
+                outline: none;
+                flex: 1;
+                font-size: 15px;
+                color: #0f172a;
+            }
+
+                .input-group input::placeholder {
+                    color: #94a3b8;
+                }
+
+        .login-btn {
+            width: 100%;
+            height: 56px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #2454ff, #1d4ed8);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 28px;
+        }
+
+            .login-btn i {
+                margin-right: 10px;
+            }
+
+        .register-text {
+            text-align: center;
+            color: #64748b;
+        }
+
+            .register-text a {
+                color: #2557ff;
+                text-decoration: none;
+                font-weight: 600;
+                margin-left: 6px;
+            }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding: 10px;
+            background: #fef2f2;
+            border-radius: 8px;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="left-panel">
+            <div class="logo">
+                <i class="fa-solid fa-chart-column"></i>
+                <span>InvestAI</span>
+            </div>
+            <h1>Yatırım kararlarını<br />veriye dayalı şekilde keşfet.</h1>
+            <p>Türkiye genelindeki il ve ilçeleri ekonomik güç, altyapı, nüfus, sürdürülebilirlik ve yapay zeka destekli analizlerle değerlendirin.</p>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <div>
+                    <h3>Hemen Başlayın</h3>
+                    <p>Ücretsiz hesap oluşturarak tüm yatırım analizi araçlarına erişin.</p>
+                </div>
+            </div>
+            <div class="map-bg"></div>
+        </div>
+
+        <div class="right-panel">
+            <div class="top-actions">
+                <button class="lang-btn"><i class="fa-solid fa-globe"></i> Türkçe</button>
+                <button class="theme-btn"><i class="fa-regular fa-sun"></i></button>
+            </div>
+            <div class="form-box">
+                <h2>Kayıt Ol</h2>
+                <p class="subtitle">InvestAI'ya katılmak için bilgilerini gir.</p>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="error-msg">
+                        @Html.ValidationSummary(true)
+                    </div>
+                }
+
+                <form asp-action="Register" asp-controller="Account" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <label>Ad Soyad</label>
+                    <div class="input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input asp-for="FullName" type="text" placeholder="Adınız Soyadınız" />
+                    </div>
+
+                    <label>E-posta</label>
+                    <div class="input-group">
+                        <i class="fa-regular fa-envelope"></i>
+                        <input asp-for="Email" type="email" placeholder="ornek@mail.com" />
+                    </div>
+
+                    <label>Şifre</label>
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input asp-for="Password" type="password" placeholder="En az 6 karakter" id="passwordInput" />
+                        <i class="fa-regular fa-eye" style="cursor:pointer" onclick="togglePassword()"></i>
+                    </div>
+
+                    <label>Şifre Tekrar</label>
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input asp-for="ConfirmPassword" type="password" placeholder="Şifrenizi tekrar girin" />
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        <i class="fa-solid fa-user-plus"></i>
+                        Kayıt Ol
+                    </button>
+                </form>
+
+                <p class="register-text">
+                    Zaten hesabın var mı?
+                    <a asp-action="Login" asp-controller="Account">Giriş Yap</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+</body>
+</html>

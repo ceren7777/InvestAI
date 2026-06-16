@@ -1,0 +1,468 @@
+﻿@{
+    ViewData["Title"] = "Bildirimlerim";
+}
+
+@section Styles {
+    <style>
+        .notifications-header {
+            margin-bottom: 24px;
+        }
+
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notifications-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .notifications-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .breadcrumb {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+            .breadcrumb span {
+                color: var(--accent);
+                font-weight: 600;
+            }
+
+        .notifications-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+            overflow: hidden;
+        }
+
+        .notification-toolbar {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+        }
+
+        .tab-btn {
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-muted);
+            padding: 11px 20px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+            .tab-btn.active {
+                background: var(--accent);
+                color: white;
+                border-color: var(--accent);
+                box-shadow: 0 8px 18px rgba(59, 110, 248, 0.22);
+            }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            border: 1px solid var(--border);
+            background: white;
+            color: #52607a;
+            padding: 11px 18px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-item {
+            display: grid;
+            grid-template-columns: 16px 64px 1fr 170px 90px;
+            align-items: center;
+            gap: 18px;
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+            .notification-item:hover {
+                background: #f8faff;
+            }
+
+        .unread-dot {
+            width: 9px;
+            height: 9px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .notification-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .icon-blue {
+            background: #eef3ff;
+            color: #3b6ef8;
+        }
+
+        .icon-green {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .icon-purple {
+            background: #f3e8ff;
+            color: #8b5cf6;
+        }
+
+        .icon-orange {
+            background: #fff4df;
+            color: #f59e0b;
+        }
+
+        .icon-red {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .notification-text h3 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .notification-text p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .notification-date {
+            color: #64748b;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .status {
+            justify-self: end;
+            padding: 6px 13px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+            .status.new {
+                background: #eef3ff;
+                color: var(--accent);
+            }
+
+            .status.read {
+                background: #dcfce7;
+                color: #16a34a;
+            }
+
+        .notification-footer {
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-count {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+            .page-btn.active {
+                background: var(--accent);
+                color: white;
+                border-color: var(--accent);
+            }
+
+        @@media (max-width: 1000px) {
+            .notification-toolbar {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .notification-item {
+                grid-template-columns: 12px 54px 1fr;
+            }
+
+            .notification-date,
+            .status {
+                grid-column: 3;
+                justify-self: start;
+            }
+        }
+    </style>
+}
+
+<div class="notifications-header">
+    <div class="title-row">
+        <div>
+            <h1>Bildirimlerim</h1>
+            <p>Sistem bildirimlerinizi buradan takip edebilirsiniz.</p>
+        </div>
+
+        <div class="breadcrumb">
+            Ana Sayfa &nbsp;›&nbsp; <span>Bildirimlerim</span>
+        </div>
+    </div>
+</div>
+
+<div class="notifications-card">
+
+    <div class="notification-toolbar">
+        <div class="tabs">
+            <button class="tab-btn active">Tümü (12)</button>
+            <button class="tab-btn">Okunmamış (4)</button>
+            <button class="tab-btn">Okundu (8)</button>
+        </div>
+
+        <div class="toolbar-actions">
+            <button class="action-btn">
+                <i class="fas fa-check"></i>
+                Tümünü Okundu İşaretle
+            </button>
+
+            <button class="action-btn">
+                <i class="fas fa-gear"></i>
+                Bildirim Ayarları
+            </button>
+        </div>
+    </div>
+
+    <div class="notification-list">
+
+        <div class="notification-item">
+            <div class="unread-dot"></div>
+
+            <div class="notification-icon icon-blue">
+                <i class="fas fa-chart-simple"></i>
+            </div>
+
+            <div class="notification-text">
+                <h3>İstanbul yatırım skoru güncellendi</h3>
+                <p>İstanbul ilinin yatırım skoru 85.6 olarak güncellendi.</p>
+            </div>
+
+            <div class="notification-date">5 Haziran 2026&nbsp;&nbsp;10:30</div>
+
+            <div class="status new">Yeni</div>
+        </div>
+
+        <div class="notification-item">
+            <div class="unread-dot"></div>
+
+            <div class="notification-icon icon-green">
+                <i class="fas fa-robot"></i>
+            </div>
+
+            <div class="notification-text">
+                <h3>Ankara için AI analiz tamamlandı</h3>
+                <p>Ankara ili için yapay zeka analizi tamamlandı. Sonuçları görüntüleyebilirsiniz.</p>
+            </div>
+
+            <div class="notification-date">5 Haziran 2026&nbsp;&nbsp;09:15</div>
+
+            <div class="status new">Yeni</div>
+        </div>
+
+        <div class="notification-item">
+            <div class="unread-dot"></div>
+
+            <div class="notification-icon icon-purple">
+                <i class="fas fa-scale-balanced"></i>
+            </div>
+
+            <div class="notification-text">
+                <h3>Bursa ve İzmir karşılaştırması kaydedildi</h3>
+                <p>Oluşturduğunuz karşılaştırma başarıyla kaydedildi.</p>
+            </div>
+
+            <div class="notification-date">4 Haziran 2026&nbsp;&nbsp;16:45</div>
+
+            <div class="status read">Okundu</div>
+        </div>
+
+        <div class="notification-item">
+            <div class="unread-dot"></div>
+
+            <div class="notification-icon icon-orange">
+                <i class="fas fa-newspaper"></i>
+            </div>
+
+            <div class="notification-text">
+                <h3>Mersin için yeni haber analizi bulundu</h3>
+                <p>Mersin ili hakkında 3 yeni haber analizi eklendi.</p>
+            </div>
+
+            <div class="notification-date">4 Haziran 2026&nbsp;&nbsp;14:20</div>
+
+            <div class="status read">Okundu</div>
+        </div>
+
+        <div class="notification-item">
+            <div class="unread-dot"></div>
+
+            <div class="notification-icon icon-red">
+                <i class="fas fa-triangle-exclamation"></i>
+            </div>
+
+            <div class="notification-text">
+                <h3>OSB verileri güncellendi</h3>
+                <p>Organize Sanayi Bölgeleri verileri güncellendi.</p>
+            </div>
+
+            <div class="notification-date">3 Haziran 2026&nbsp;&nbsp;11:05</div>
+
+            <div class="status read">Okundu</div>
+        </div>
+
+        <div class="notification-item">
+            <div class="unread-dot"></div>
+
+            <div class="notification-icon icon-blue">
+                <i class="fas fa-database"></i>
+            </div>
+
+            <div class="notification-text">
+                <h3>Maden verileri güncellendi</h3>
+                <p>Bazı illere ait maden rezerv verileri güncellendi.</p>
+            </div>
+
+            <div class="notification-date">3 Haziran 2026&nbsp;&nbsp;09:40</div>
+
+            <div class="status read">Okundu</div>
+        </div>
+
+    </div>
+
+    <div class="notification-footer">
+        <div class="notification-count">
+            1 - 6 / 12 bildirim gösteriliyor
+        </div>
+
+        <div class="pagination">
+            <button class="page-btn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+
+            <button class="page-btn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        const allBtn = document.querySelectorAll(".tab-btn")[0];
+        const unreadBtn = document.querySelectorAll(".tab-btn")[1];
+        const readBtn = document.querySelectorAll(".tab-btn")[2];
+
+        const items = document.querySelectorAll(".notification-item");
+
+        allBtn.addEventListener("click", function () {
+            setActiveTab(allBtn);
+            items.forEach(item => item.style.display = "grid");
+        });
+
+        unreadBtn.addEventListener("click", function () {
+            setActiveTab(unreadBtn);
+            items.forEach(item => {
+                const status = item.querySelector(".status");
+                item.style.display = status.classList.contains("new") ? "grid" : "none";
+            });
+        });
+
+        readBtn.addEventListener("click", function () {
+            setActiveTab(readBtn);
+            items.forEach(item => {
+                const status = item.querySelector(".status");
+                item.style.display = status.classList.contains("read") ? "grid" : "none";
+            });
+        });
+
+        function setActiveTab(activeButton) {
+            document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+            activeButton.classList.add("active");
+        }
+
+        document.querySelector(".action-btn").addEventListener("click", function () {
+            items.forEach(item => {
+                const status = item.querySelector(".status");
+                status.textContent = "Okundu";
+                status.classList.remove("new");
+                status.classList.add("read");
+            });
+
+            alert("Tüm bildirimler okundu olarak işaretlendi.");
+        });
+
+        document.querySelectorAll(".page-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                document.querySelectorAll(".page-btn").forEach(b => b.classList.remove("active"));
+
+                if (!this.querySelector("i")) {
+                    this.classList.add("active");
+                }
+            });
+        });
+    </script>
+}

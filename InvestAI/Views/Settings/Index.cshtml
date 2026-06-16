@@ -1,0 +1,540 @@
+﻿@model InvestAI.Models.ApplicationUser
+@{
+    ViewData["Title"] = "Tercihlerim";
+}
+@section Styles {
+<style>
+    .settings-layout {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 24px;
+        max-width: 1100px;
+    }
+
+    .settings-nav {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 12px;
+        height: fit-content;
+    }
+
+    .settings-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-radius: 10px;
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-family: inherit;
+    }
+
+    .settings-nav-item:hover { background: var(--bg); color: var(--text); }
+    .settings-nav-item.active { background: #eef3ff; color: var(--accent); font-weight: 700; }
+    .settings-nav-item i { width: 16px; text-align: center; }
+
+    .settings-panel { display: none; flex-direction: column; gap: 20px; }
+    .settings-panel.active { display: flex; }
+
+    .settings-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 28px;
+    }
+
+    .settings-card-title {
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .settings-card-sub {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 24px;
+    }
+
+    .settings-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .settings-row:last-of-type { border-bottom: none; }
+
+    .settings-row-label { font-size: 14px; font-weight: 600; }
+    .settings-row-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+    .toggle {
+        position: relative;
+        width: 46px;
+        height: 26px;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+        position: absolute;
+        inset: 0;
+        background: #e2e8f0;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .toggle-slider:before {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        left: 3px;
+        top: 3px;
+        background: white;
+        border-radius: 50%;
+        transition: 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+
+    .toggle input:checked + .toggle-slider { background: var(--accent); }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+    .select-input {
+        height: 42px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0 14px;
+        font-family: inherit;
+        font-size: 14px;
+        color: var(--text);
+        outline: none;
+        background: white;
+        min-width: 180px;
+    }
+
+    .hub-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-top: 8px;
+    }
+
+    .hub-card {
+        border: 2px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-align: center;
+    }
+
+    .hub-card:hover { border-color: var(--accent); background: #f8faff; }
+    .hub-card.selected { border-color: var(--accent); background: #eef3ff; }
+
+    .hub-card-icon { font-size: 22px; margin-bottom: 10px; }
+    .hub-card-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .hub-card-options { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+
+    .hub-option {
+        padding: 4px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        background: white;
+        font-family: inherit;
+        transition: all 0.15s;
+    }
+
+    .hub-option.selected { background: var(--accent); color: white; border-color: var(--accent); }
+
+    .breadcrumb { font-size: 13px; color: var(--text-muted); }
+    .breadcrumb span { color: var(--accent); font-weight: 600; }
+
+    .page-header { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; }
+    .page-header h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .page-header p { font-size: 14px; color: var(--text-muted); }
+
+    .btn-save {
+        height: 44px;
+        padding: 0 24px;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 8px 18px rgba(59,110,248,0.25);
+    }
+
+    .btn-back {
+        height: 44px;
+        padding: 0 20px;
+        background: white;
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+</style>
+}
+
+<div class="page-header">
+    <div>
+        <h1>Tercihlerim</h1>
+        <p>Uygulamaya ait genel ayarları buradan yönetin.</p>
+    </div>
+    <div class="breadcrumb">Ana Sayfa &nbsp;›&nbsp; <span>Tercihlerim</span></div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;padding:12px 16px;border-radius:10px;margin-bottom:20px;font-size:14px;">
+        <i class="fas fa-check-circle"></i> @TempData["Success"]
+    </div>
+}
+
+<form asp-action="Save" asp-controller="Settings" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="settings-layout">
+
+        <!-- Sol Nav -->
+        <div class="settings-nav">
+            <button type="button" class="settings-nav-item active" onclick="showTab('genel')">
+                <i class="fas fa-sliders"></i> Genel Ayarlar
+            </button>
+            <button type="button" class="settings-nav-item" onclick="showTab('bildirim')">
+                <i class="fas fa-bell"></i> Bildirim Ayarları
+            </button>
+            <button type="button" class="settings-nav-item" onclick="showTab('ai')">
+                <i class="fas fa-robot"></i> AI Ayarları
+            </button>
+            <button type="button" class="settings-nav-item" onclick="showTab('guvenlik')">
+                <i class="fas fa-shield-halved"></i> Güvenlik
+            </button>
+            <button type="button" class="settings-nav-item" onclick="showTab('il')">
+                <i class="fas fa-map-marker-alt"></i> İl ve Bölge
+            </button>
+        </div>
+
+        <!-- Sağ İçerik -->
+        <div>
+
+            <!-- Genel -->
+            <div class="settings-panel active" id="tab-genel">
+                <div class="settings-card">
+                    <div class="settings-card-title">Genel Ayarlar</div>
+                    <div class="settings-card-sub">Uygulamada varsayılan olarak görünmesini istediğiniz il'i seçin.</div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Varsayılan Analiz İli</div>
+                            <div class="settings-row-sub">Yatırım Analizi sayfası bu il ile açılır.</div>
+                        </div>
+                        <input type="text" name="defaultIl" value="@Model.DefaultIl" placeholder="örn. İstanbul" class="select-input" />
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Dil</div>
+                            <div class="settings-row-sub">Uygulamanın gösterim dilini ayarlayın.</div>
+                        </div>
+                        <select class="select-input">
+                            <option selected>Türkçe</option>
+                            <option>English</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Otomatik Yenile</div>
+                            <div class="settings-row-sub">Skor verilerini otomatik olarak yenileyin.</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" checked />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Veri Güncellemeleri</div>
+                            <div class="settings-row-sub">Yeni veri eklendiğinde size bildirilsin.</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" checked />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Hub Tercihleri -->
+                <div class="settings-card">
+                    <div class="settings-card-title">Hub Tercihleri</div>
+                    <div class="settings-card-sub">Analiz araçlarına ait varsayılan ayarlarınızı belirleyin.</div>
+                    <div class="hub-grid">
+                        <div class="hub-card">
+                            <div class="hub-card-icon">🎨</div>
+                            <div class="hub-card-title">Tema</div>
+                            <div class="hub-card-options">
+                                <button type="button" class="hub-option selected">Açık</button>
+                                <button type="button" class="hub-option">Koyu</button>
+                            </div>
+                        </div>
+                        <div class="hub-card">
+                            <div class="hub-card-icon">🤖</div>
+                            <div class="hub-card-title">AI Yanıt Uzunluğu</div>
+                            <div class="hub-card-options">
+                                <button type="button" class="hub-option">Kısa</button>
+                                <button type="button" class="hub-option selected">Orta</button>
+                                <button type="button" class="hub-option">Detaylı</button>
+                            </div>
+                        </div>
+                        <div class="hub-card">
+                            <div class="hub-card-icon">📊</div>
+                            <div class="hub-card-title">Veri Yoğunluğu</div>
+                            <div class="hub-card-options">
+                                <button type="button" class="hub-option">Az</button>
+                                <button type="button" class="hub-option selected">Orta</button>
+                                <button type="button" class="hub-option">Fazla</button>
+                            </div>
+                        </div>
+                        <div class="hub-card">
+                            <div class="hub-card-icon">🗺️</div>
+                            <div class="hub-card-title">Harita Görünümü</div>
+                            <div class="hub-card-options">
+                                <button type="button" class="hub-option selected">Standart</button>
+                                <button type="button" class="hub-option">Uydu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bildirim -->
+            <div class="settings-panel" id="tab-bildirim">
+                <div class="settings-card">
+                    <div class="settings-card-title">Bildirim Ayarları</div>
+                    <div class="settings-card-sub">Hangi bildirimler almak istediğinizi seçin.</div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Tüm Bildirimler</div>
+                            <div class="settings-row-sub">Tüm bildirimleri açık/kapalı yapın.</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" name="bildirimAktif" value="true" @(Model.BildirimAktif ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Yeni OSB Verisi</div>
+                            <div class="settings-row-sub">Yeni OSB eklendiğinde bildir.</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" checked />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Maden Verisi Güncellemesi</div>
+                            <div class="settings-row-sub">Maden verileri güncellendiğinde bildir.</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" checked />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">AI Analiz Tamamlandı</div>
+                            <div class="settings-row-sub">AI analizi bittiğinde bildir.</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" checked />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Skor Değişikliği</div>
+                            <div class="settings-row-sub">Kayıtlı ilin skoru değiştiğinde bildir.</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI -->
+            <div class="settings-panel" id="tab-ai">
+                <div class="settings-card">
+                    <div class="settings-card-title">AI Ayarları</div>
+                    <div class="settings-card-sub">Yapay zeka yanıt tercihlerinizi ayarlayın.</div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">AI Yanıt Uzunluğu</div>
+                            <div class="settings-row-sub">Yapay zeka analizinin ne kadar detaylı olacağını seçin.</div>
+                        </div>
+                        <select name="aiYanitUzunlugu" class="select-input">
+                            <option value="Kısa" selected="@(Model.AIYanitUzunlugu == "Kısa")">Kısa</option>
+                            <option value="Orta" selected="@(Model.AIYanitUzunlugu == "Orta" || string.IsNullOrEmpty(Model.AIYanitUzunlugu))">Orta</option>
+                            <option value="Detaylı" selected="@(Model.AIYanitUzunlugu == "Detaylı")">Detaylı</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Otomatik Analiz</div>
+                            <div class="settings-row-sub">İl sayfası açıldığında AI analizi otomatik başlasın.</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" checked />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Türkçe Yanıt</div>
+                            <div class="settings-row-sub">AI yanıtları her zaman Türkçe olsun.</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" checked />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Güvenlik -->
+            <div class="settings-panel" id="tab-guvenlik">
+                <div class="settings-card">
+                    <div class="settings-card-title">Güvenlik</div>
+                    <div class="settings-card-sub">Hesap güvenliğinizi yönetin.</div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">E-posta</div>
+                            <div class="settings-row-sub">@Model.Email</div>
+                        </div>
+                        <span style="background:#dcfce7;color:#16a34a;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;">Doğrulandı</span>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Şifre</div>
+                            <div class="settings-row-sub">Son değişiklik: bilinmiyor</div>
+                        </div>
+                        <a asp-controller="Profile" asp-action="Index" style="color:var(--accent);font-size:13px;font-weight:700;text-decoration:none;">
+                            <i class="fas fa-pen"></i> Değiştir
+                        </a>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Son Giriş</div>
+                            <div class="settings-row-sub">
+                                @(Model.LastLoginAt.HasValue ? Model.LastLoginAt.Value.ToString("dd MMMM yyyy HH:mm", new System.Globalization.CultureInfo("tr-TR")) : "-")
+                            </div>
+                        </div>
+                        <span style="background:#eef3ff;color:var(--accent);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;">Aktif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- İl ve Bölge -->
+            <div class="settings-panel" id="tab-il">
+                <div class="settings-card">
+                    <div class="settings-card-title">İl ve Bölge Tercihleri</div>
+                    <div class="settings-card-sub">Varsayılan bölge ve gösterim tercihlerinizi ayarlayın.</div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Varsayılan İl</div>
+                            <div class="settings-row-sub">Dashboard ve analizlerde öncelikli gösterilecek il.</div>
+                        </div>
+                        <input type="text" name="defaultIl" value="@Model.DefaultIl" placeholder="örn. Ankara" class="select-input" />
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-label">Bölge Filtresi</div>
+                            <div class="settings-row-sub">Haritada varsayılan bölge gösterimi.</div>
+                        </div>
+                        <select class="select-input">
+                            <option>Tüm Türkiye</option>
+                            <option>Marmara</option>
+                            <option>Ege</option>
+                            <option>Akdeniz</option>
+                            <option>İç Anadolu</option>
+                            <option>Karadeniz</option>
+                            <option>Doğu Anadolu</option>
+                            <option>Güneydoğu Anadolu</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kaydet Butonu -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                <a asp-controller="Profile" asp-action="Index" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Profile Dön
+                </a>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Değişiklikleri Kaydet
+                </button>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+    function showTab(name) {
+        document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.settings-nav-item').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    document.querySelectorAll('.hub-option').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const siblings = this.closest('.hub-card-options').querySelectorAll('.hub-option');
+            siblings.forEach(s => s.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+</script>
+}
