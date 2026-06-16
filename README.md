@@ -59,32 +59,19 @@ InvestAI is an artificial intelligence supported regional investment analysis pl
 # System Screenshots
 
 ## Dashboard
+<img width="100%" src="InvestAI/images/dashboard.png">
 
-<img width="100%" src="images/dashboard.png">
+<img width="100%" src="InvestAI/images/province-search.png">
 
-## Province / District Search
+<img width="100%" src="InvestAI/images/investment-scores.png">
 
-<img width="100%" src="images/province-search.png">
+<img width="100%" src="InvestAI/images/categories.png">
 
-## Investment Scores
+<img width="100%" src="InvestAI/images/news-analysis.png">
 
-<img width="100%" src="images/investment-scores.png">
+<img width="100%" src="InvestAI/images/comparison.png">
 
-## Category Analysis
-
-<img width="100%" src="images/categories.png">
-
-## News Analysis
-
-<img width="100%" src="images/news-analysis.png">
-
-## Regional Comparison
-
-<img width="100%" src="images/comparison.png">
-
-## AI Investment Assistant
-
-<img width="100%" src="images/ai-assistant.png">
+<img width="100%" src="InvestAI/images/ai-assistant.png">
 
 ---
 
